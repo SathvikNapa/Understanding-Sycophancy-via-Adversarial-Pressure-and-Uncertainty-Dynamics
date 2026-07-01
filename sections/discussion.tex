@@ -1,96 +1,8 @@
-% \section{Discussion}
-% \label{sec:discussion}
-
-% % \paragraph{Three behavioral modes under sustained pressure.}
-% % The per-turn slope analysis on MMLU-Pro and GPQA-Diamond
-% % (\autoref{tab:rq3}) together with the consensus-loss analysis on HLE
-% % identify three qualitatively distinct modes that describe how models
-% % respond to escalating adversarial pressure. \emph{Resisters} (Claude
-% % Haiku, Claude Sonnet, GPT-5.4) show negative slopes across $T_1$--$T_6$:
-% % their initial brittleness at the first pressure turn does not compound,
-% % and many flips are reversed by later self-corrections. \emph{Capitulators}
-% % (GPT-5.4 Mini, GPT-5.4 Nano) show the opposite pattern: each additional
-% % turn raises flip probability further, and once the model yields it
-% % stays yielded. \emph{Fragmenters}, observed distinctly on HLE for
-% % Gemini 3.5 Flash, follow neither pattern: the model neither defends
-% % nor commits, but instead loses coherent self-consistency, producing
-% % per-turn answer distributions with no single majority answer on
-% % $72.2\%$ of $T_0$-correct queries. The three modes are not artifacts
-% % of model scale: both resisters and capitulators include models from
-% % the same family at adjacent capability tiers.
-
-% \paragraph{Three behavioral modes under sustained pressure.}
-% The per-turn slope analysis (\autoref{tab:rq3}) and HLE consensus-loss analysis (\autoref{sec:results}) identify three qualitatively distinct modes: \textbf{resisters} (negative slope, declining flip rate), \textbf{capitulators} (positive slope, compounding flip rate), and \textbf{fragmenters} (consensus loss without commitment to a wrong answer). These modes cross-cut model scale: same-family models at adjacent capability tiers appear in different groups.
-
-% \paragraph{Why the distinction matters for deployment.}
-% Each mode implies a different threat surface. \emph{Resisters} are
-% safest under extended adversarial dialogue: their initial vulnerability
-% stabilizes or recovers, so the operational risk is concentrated at
-% $T_1$ and decays. \emph{Capitulators} become \emph{more} dangerous as
-% conversations lengthen, inverting the intuition that more deliberation
-% produces safer outputs; for these models, each additional pressure
-% turn is an additional opportunity to lock in a wrong answer.
-% \emph{Fragmenters} are the most operationally unreliable: even when
-% they do not capitulate to a specific wrong answer, they cease producing
-% a coherent reply, which is a distinct failure mode relative to the
-% user who needs a usable response. A single-turn benchmark detects none
-% of these distinctions, since all three modes can yield the same
-% $T_1$ flip rate while diverging sharply over $T_2$--$T_6$. Evaluations
-% designed for deployment safety should report the per-turn slope and
-% the consensus-loss rate alongside any aggregate flip rate.
-
-% \paragraph{Pressure as an amplifier, not an independent driver.}
-% The significant positive $\hat\beta_{PH}$ interaction in
-% \autoref{fig:rq2_coefs} formalizes a property visible throughout our
-% analyses: pressure does not produce uniform increases in flip
-% probability regardless of prior belief state, but instead amplifies
-% pre-existing uncertainty. The same six pressure turns that cause
-% Claude Sonnet to flip $71\%$ of uncertain MMLU-Pro questions flip only
-% $10\%$ of its certain ones. This recasts the design of pressure-based
-% sycophancy benchmarks: testing a model on questions where it is
-% already uncertain at baseline overstates its susceptibility to social
-% pressure per se, while testing only on questions where it is confident
-% understates it. Cross-model comparison therefore requires controlling
-% for the baseline uncertainty distribution, which we operationalize as
-% the eligibility criterion of \autoref{sec:methods:setup}; without that
-% control, model-level susceptibility scores conflate \emph{behavioral
-% certainty} with \emph{capitulation propensity}.
-
-% \paragraph{Confidence does not track correctness under pressure.}
-% \autoref{tab:rq4} shows that across all five Claude/GPT models on
-% MMLU-Pro and GPQA-Diamond, calibrated correctness drops $25$--$40$ pp
-% from $T_0$ to $T_6$ while mean calibrated confidence stays nearly
-% flat ($\pm$1--3 pp). The overconfidence gap (Conf.\ $-$ Maj.\ Correct)
-% correspondingly widens from $0.05$--$0.33$ at baseline to $0.21$--$0.88$
-% at maximum pressure. The most extreme case is Claude Haiku on
-% GPQA-Diamond, where confidence \emph{rises} from $0.805$ to $0.890$
-% while correctness collapses from $0.679$ to $0.013$. This dissociation
-% generalizes the finding of \citet{mei2025reasoninguncertainty} that
-% incorrect responses can receive self-verbalized confidence above
-% $85\%$, and extends it to the social-pressure setting: the
-% discriminating signal in a reasoning trace is the divergence between
-% calibrated belief and expressed confidence, not the confidence
-% trajectory in isolation. A confidence-threshold abstention rule built
-% on raw self-reported confidence would catch essentially none of the
-% pressure-induced flips identified by our framework.
-
-% \paragraph{Connection to prior multi-turn benchmarks.}
-% TRUTH DECAY \citep{liu2025truthdecayquantifyingmultiturn} and SYCON
-% Bench \citep{hong2025syconbench} establish that multi-turn sycophancy
-% is a distinct failure mode from single-turn agreement, and both report
-% that flip rates change over turns. Our contribution is orthogonal:
-% rather than asking \emph{whether} models flip more under multi-turn
-% pressure, we ask \emph{which questions} are most susceptible and
-% \emph{which models} convert that susceptibility into different
-% sustained-pressure trajectories. The per-turn slope and the
-% pre-pressure uncertainty signal are two black-box quantities that can
-% be added to any existing multi-turn benchmark to yield this
-% finer-grained characterization.
-
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{Three behavioral modes under sustained pressure.} The per-turn slope analysis on MMLU-Pro and GPQA-Diamond (\autoref{tab:rq3}) together with the consensus-loss analysis on HLE identify three qualitatively distinct modes that describe how models respond to escalating adversarial pressure. \emph{Resisters} show negative slopes across $T_1$--$T_6$: their initial brittleness at the first pressure turn does not compound, and many flips are reversed by later self-corrections. \emph{Capitulators} show the opposite pattern: each additional turn raises flip probability further, and once the model yields it stays yielded. \emph{Fragmenters}, observed distinctly on HLE for Gemini 3.5 Flash, follow neither pattern: the model neither defends nor commits, but instead loses coherent self-consistency, producing per-turn answer distributions with no single majority answer on $72.2\%$ of $T_0$-correct queries. The three modes are not artifacts of model scale: both resisters and capitulators include models from the same family at adjacent capability tiers.
+\paragraph{Three behavioral modes under sustained pressure.} The per-turn slope analysis on MMLU-Pro and GPQA-Diamond (\autoref{tab:rq3}) together with the consensus-loss analysis on HLE identify three qualitatively distinct modes that describe how models respond to escalating adversarial pressure. \emph{Resisters} (Claude Haiku, Claude Sonnet, GPT-5.4) show negative slopes across $T_1$--$T_6$: their initial brittleness at the first pressure turn does not compound,
+and many flips are reversed by later self-corrections. \emph{Capitulators} (GPT-5.4 Mini, GPT-5.4 Nano) show the opposite pattern: each additional turn raises flip probability further, and once the model yields it stays yielded. \emph{Fragmenters}, observed distinctly on HLE for Gemini 3.5 Flash, follow neither pattern: the model neither defends nor commits, but instead loses coherent self-consistency, producing per-turn answer distributions with no single majority answer on $72.2\%$ of $T_0$-correct queries. The three modes are not artifacts of model scale: both resisters and capitulators include models from the same family at adjacent capability tiers.
 
 \paragraph{Why the distinction matters for deployment.} Each mode implies a different threat surface. \emph{Resisters} are safest under extended adversarial dialogue: their initial vulnerability stabilizes or recovers, so the operational risk is concentrated at $T_1$ and decays. \emph{Capitulators} become \emph{more} dangerous as
 conversations lengthen, inverting the intuition that more deliberation produces safer outputs; for these models, each additional pressure
@@ -100,6 +12,8 @@ the consensus-loss rate alongside any aggregate flip rate.
 
 \paragraph{Pressure as an amplifier, not an independent driver.} The significant positive $\hat\beta_{PH}$ interaction in \autoref{fig:rq2_coefs} formalizes a property visible throughout our analyses: pressure does not produce uniform increases in flip probability regardless of prior belief state, but instead amplifies pre-existing uncertainty. The same six pressure turns that cause Claude Sonnet to flip $71\%$ of uncertain MMLU-Pro questions flip only $10\%$ of its certain ones. This recasts the design of pressure-based sycophancy benchmarks: testing a model on questions where it is already uncertain at baseline overstates its susceptibility to social pressure per se, while testing only on questions where it is confident understates it. Cross-model comparison therefore requires controlling for the baseline uncertainty distribution, which we operationalize as the eligibility criterion of \autoref{sec:methods:setup}; without that control, model-level susceptibility scores conflate \emph{behavioral certainty} with \emph{capitulation propensity}.
 
-\paragraph{Confidence does not track correctness under pressure.} "Across all five Claude/GPT models on MMLU-Pro and GPQA-Diamond (\autoref{tab:rq4}), calibrated correctness drops sharply under pressure while confidence stays nearly flat, where the overconfidence gap widens almost everywhere, most extremely for Claude Haiku on GPQA-Diamond. This generalizes the finding of \citet{mei2025reasoninguncertainty} that incorrect responses can receive self-verbalized confidence above 85\%, and extends it to the social-pressure setting: the discriminating signal in a reasoning trace is the divergence between calibrated belief and expressed confidence, not confidence in isolation. A confidence-threshold abstention rule built on raw self-reported confidence would catch essentially none of the pressure-induced flips identified here.
+\paragraph{Confidence does not track correctness under pressure.} \autoref{tab:rq4} shows that across all five Claude/GPT models on MMLU-Pro and GPQA-Diamond, calibrated correctness drops $25$--$40$ pp from $T_0$ to $T_6$ while mean calibrated confidence stays nearly
+flat ($\pm$1--3 pp). The overconfidence gap (Conf.\ $-$ Maj.\ Correct) correspondingly widens from $0.05$--$0.33$ at baseline to $0.21$--$0.88$ at maximum pressure. The most extreme case is Claude Haiku on GPQA-Diamond, where confidence \emph{rises} from $0.805$ to $0.890$ while correctness collapses from $0.679$ to $0.013$. This dissociation generalizes the finding of \citet{mei2025reasoninguncertainty} that
+incorrect responses can receive self-verbalized confidence above $85\%$, and extends it to the social-pressure setting: the discriminating signal in a reasoning trace is the divergence between calibrated belief and expressed confidence, not the confidence trajectory in isolation. A confidence-threshold abstention rule built on raw self-reported confidence would catch essentially none of the pressure-induced flips identified by our framework.
 
 \paragraph{Connection to prior multi-turn benchmarks.} TRUTH DECAY \citep{liu2025truthdecayquantifyingmultiturn} and SYCON Bench \cite{hong2025syconbench} establish that multi-turn sycophancy is a distinct failure mode from single-turn agreement, and both report that flip rates change over turns. Our contribution is orthogonal: rather than asking \emph{whether} models flip more under multi-turn pressure, we ask \emph{which questions} are most susceptible and \emph{which models} convert that susceptibility into different sustained-pressure trajectories. The per-turn slope and the pre-pressure uncertainty signal are two black-box quantities that can be added to any existing multi-turn benchmark to yield this finer-grained characterization.

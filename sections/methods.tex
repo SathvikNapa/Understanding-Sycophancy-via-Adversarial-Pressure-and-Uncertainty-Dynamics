@@ -9,16 +9,23 @@ We describe the four components of our evaluation framework: (i) the uncertainty
 Three distinct uncertainty signals underpin our analyses, each operating at a different temporal and analytical granularity. We introduce them together here as a reference; formal definitions and usage details are deferred to the subsections cross-referenced below.
 
 \paragraph{(1) Pre-pressure behavioral uncertainty $H(q;\mathcal{M})$.}
-Shannon entropy over $K = 25$ independent answer samples drawn from the target model at temperature 1, conditioned only on the question $q$ (no adversarial context). $H(q;\mathcal{M}) = 0$ when all samples agree (the model is behaviorally certain) and $H(q;\mathcal{M}) < 0$ when samples spread across multiple options. This is the headline uncertainty signal of the paper: it characterizes a model's belief state on $q$ \emph{before} any pressure begins, and serves as the regressor in RQ1, RQ2, and RQ3. Defined formally in Section~\ref{sec:methods:entropy}.
+Shannon entropy over $K = 25$ independent answer samples drawn from the target model at temperature 1, conditioned only on the question $q$ (no adversarial context). $H(q;\mathcal{M}) = 0$ when all samples agree (the model is behaviorally certain) and $H(q;\mathcal{M}) < 0$ when samples spread across multiple options. This is the headline uncertainty signal of the paper: it characterizes a model's belief state on $q$ \emph{before} any pressure begins, and serves as the regressor in RQ1, RQ2, and RQ3. Defined formally in
+
+Section~\ref{sec:methods:entropy}.
 
 \paragraph{(2) Per-turn belief entropy $B_t(q;\mathcal{M})$.}
-Shannon entropy over the $R = 5$ majority beliefs obtained from running $R$ independent multi-turn dialogues at pressure turn $t$, where the majority belief in each dialogue is the modal answer across $K_{\text{turn}} = 5$ re-polls within that dialogue. $B_t$ captures the spread of the model's response across independent adversarial conversations \emph{at a given turn under pressure}, and appears as the \emph{Bel.\ Ent.} column of the RQ4 table (Appendix~\ref{app:rq4}). $B_t$ and $H$ are distinct measurements: $H$ measures spread before any pressure with no dialogue context, while $B_t$ measures spread during pressure across replicate dialogues. Defined in Section~\ref{sec:methods:pressure}.
+Shannon entropy over the $R = 5$ majority beliefs obtained from running $R$ independent multi-turn dialogues at pressure turn $t$, where the majority belief in each dialogue is the modal answer across $K_{\text{turn}} = 5$ re-polls within that dialogue. $B_t$ captures the spread of the model's response across independent adversarial conversations \emph{at a given turn under pressure}, and appears as the \emph{Bel.\ Ent.} column of the RQ4 table
+(Appendix~\ref{app:rq4}). $B_t$ and $H$ are distinct measurements: $H$ measures spread before any pressure with no dialogue context, while $B_t$ measures spread during pressure across replicate dialogues. Defined in Section~\ref{sec:methods:pressure}.
 
 \paragraph{(3) Step-level calibrated confidence $\hat{\gamma}_\ell$.}
-Verbalized confidence $\hat{\gamma}_\ell \in [0, 100]$ assigned by the external calibrator $\mathcal{C}$ at step $\ell$ of a free-form reasoning trace, alongside an inferred belief $\hat{c}_\ell$ over the option set $\mathcal{A}$. Unlike $H$ and $B_t$, which are black-box behavioral measures derived from repeated sampling on the target model, $\hat{\gamma}_\ell$ is a verbalized scalar that approximates how confident the partial reasoning \emph{appears} to an external reader. Defined in Section~\ref{sec:methods:calibrator} and validated against ground-truth correctness in Appendix~\ref{app:calibration}.
+Verbalized confidence $\hat{\gamma}_\ell \in [0, 100]$ assigned by the external calibrator $\mathcal{C}$ at step $\ell$ of a free-form reasoning trace, alongside an inferred belief $\hat{c}_\ell$ over the option set $\mathcal{A}$. Unlike $H$ and $B_t$, which are black-box behavioral measures derived from repeated sampling on the target model, $\hat{\gamma}_\ell$ is a verbalized scalar that approximates how confident the partial reasoning \emph{appears} to an external reader. Defined in Section~\ref{sec:methods:calibrator} and validated against ground-truth correctness in
+
+Appendix~\ref{app:calibration}.
 
 \paragraph{(4) Calibrated hardness $\hat{h}(q;\mathcal{M},\mathcal{D})$.}
-A complementary view of pre-pressure uncertainty: instead of using the raw entropy $H(q;\mathcal{M})$, we map $|H|$ to a per-(model, dataset) calibrated probability that the model answers $q$ incorrectly on a fresh attempt. The mapping is fit by isotonic regression on baseline data, yielding $\hat{h} \in [0, 1]$ on the same scale as expected error rate. Defined in Section~\ref{sec:methods:hardness}; this signal is used as an alternative to $H$ in supplementary regressions and to construct the Easy/Medium/Hard bins of Appendix~\ref{app:entropy_dist}.
+A complementary view of pre-pressure uncertainty: instead of using the raw entropy $H(q;\mathcal{M})$, we map $|H|$ to a per-(model, dataset) calibrated probability that the model answers $q$
+incorrectly on a fresh attempt. The mapping is fit by isotonic regression on baseline data, yielding $\hat{h} \in [0, 1]$ on the same scale as expected error rate. Defined in
+Section~\ref{sec:methods:hardness}; this signal is used as an alternative to $H$ in supplementary regressions and to construct the Easy/Medium/Hard bins of Appendix~\ref{app:entropy_dist}.
 
 The four signals are complementary. $H$ partitions the question pool into a stable certain group ($H = 0$) and a volatile uncertain group ($H < 0$); $\hat{h}$ projects that partition onto a calibrated error-probability scale for cross-cell comparability; $B_t$ tracks how the volatility evolves turn by turn under sustained pressure; and $\hat{\gamma}_\ell$ provides a step-level signal inside a single reasoning trace that exposes \emph{where in the reasoning} a flip is signaled. Together they support measurement at three resolutions: \emph{per question} (via $H$ and $\hat{h}$), \emph{per turn} (via $B_t$), and \emph{per reasoning step} (via $\hat{\gamma}_\ell$).
 
@@ -121,7 +128,7 @@ levels (Table~\ref{tab:pressure_levels}) escalate from low-authority
 personal pushback to high-authority external claims and finally to
 crowd-consensus framing.
 
-\input{sections/tables/pressure_levels}
+\input{tables/pressure_levels}
 
 \paragraph{Rationale for escalation order.}
 The six prompts span the rhetorical strategies most commonly identified
@@ -390,4 +397,4 @@ MMLU-Pro and GPQA-Diamond, and on HLE we currently report results for
 GPT-5.4 and Gemini 3.5 Flash with the remaining four HLE cells
 deferred to future work (Section~\ref{sec:limitations}).
 
-\input{sections/tables/coverage}
+\input{tables/coverage}

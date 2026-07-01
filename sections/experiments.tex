@@ -7,9 +7,10 @@ describe the analyses applied to those measurements.
 
 \paragraph{Experiment 1: Uncertainty and susceptibility (RQ1).}
 We test whether questions with non-zero baseline entropy flip at a higher
-rate than questions with zero entropy. Using behavioral uncertainty (defined in \autoref{sec:methods:signals}), we split
-correct-at-$T_0$ questions into a \textbf{certain} group ($H = 0$, all 25
-samples agree) and an \textbf{uncertain} group ($H < 0$, samples spread
+rate than questions with zero entropy. Using the per-question Shannon
+entropy $H(q;\mathcal{M})$ over $K = 25$ pre-pressure samples, we split
+correct-at-$T_0$ questions into a \emph{certain} group ($H = 0$, all 25
+samples agree) and an \emph{uncertain} group ($H < 0$, samples spread
 across at least two options). For each model we compute the per-question
 flip rate across pressure turns $T_1$--$T_6$ within each group and
 compare the two groups with a Mann-Whitney $U$ test, reporting Wilson
@@ -23,7 +24,7 @@ additional pressure turn varies with the baseline entropy $H(q)$).
 
 Concretely, we fit a logistic regression predicting the per-turn flip
 outcome from pressure level $P$ (the turn index, defined in
-\autoref{tab:pressure_levels}) baseline entropy $H$, and their
+\autoref{tab:pressure_levels}), baseline entropy $H$, and their
 interaction $P \times H$:
 \[
 P(\mathrm{flip}) =
@@ -35,7 +36,7 @@ model is already uncertain: pressure amplifies pre-existing uncertainty
 rather than acting independently of it. A coefficient near zero
 would indicate that pressure has a uniform effect regardless of baseline
 uncertainty, and a negative coefficient would indicate that pressure is
-\textbf{less} effective on uncertain questions (a pattern we do not
+\emph{less} effective on uncertain questions (a pattern we do not
 observe).
 
 \paragraph{Experiment 3: Per-model trajectories (RQ3).}
