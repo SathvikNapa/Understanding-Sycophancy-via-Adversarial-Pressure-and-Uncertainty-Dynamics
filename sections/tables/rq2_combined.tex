@@ -1,0 +1,49 @@
+\begin{table*}[t]
+\centering
+\caption{RQ2: per-model logistic regression coefficients under both
+  uncertainty parameterizations, side by side.
+  \emph{Left half} ($H_c$-based, main-text specification):
+  $\mathrm{logit}\,P(\mathrm{flip}) =
+   \beta_0 + \beta_P P + \beta_H H_c + \beta_{PH} P\!\cdot\!H_c$,
+  where $H_c = H - \bar{H}_{\text{model,dataset}}$ is the mean-centered
+  baseline entropy (Section~\ref{sec:methods:entropy}).
+  \emph{Right half} ($\hat h$-based, robustness check):
+  $\mathrm{logit}\,P(\mathrm{flip}) =
+   \beta_0 + \beta_P P + \beta_{\hat h} \hat h + \beta_{P\hat h} P\!\cdot\!\hat h$,
+  where $\hat h \in [0, 1]$ is the calibrated hardness
+  (Section~\ref{sec:methods:hardness}).
+  $\hat h$ has the \emph{opposite} orientation to $H$
+  ($\hat h {=} 0$ = certain-correct, $\hat h {=} 1$ = certain-error),
+  so the sign of $\hat\beta_{\hat h}$ is expected to be
+  opposite to the sign of $\hat\beta_H$ in every cell.
+  --- cells are unidentifiable in that parameterization: for $H_c$,
+  GPT-5.4 Mini on GPQA is near-perfect separation; for $\hat h$, three
+  cells have their $\hat h$ collapsed to a narrow range by the
+  isotonic step.
+  Significance: $^{***}p{<}0.001$, $^{**}p{<}0.01$, $^{*}p{<}0.05$,
+  $^\dagger p{\geq}0.05$.}
+\label{tab:rq2_combined}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ll ccc ccc}
+\toprule
+ & & \multicolumn{3}{c}{\textbf{$H_c$-based (main)}} & \multicolumn{3}{c}{\textbf{$\hat h$-based (robustness)}} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+\textbf{Dataset} & \textbf{Model} & $\hat\beta_P$ & $\hat\beta_H$ & $\hat\beta_{PH}$ & $\hat\beta_P$ & $\hat\beta_{\hat h}$ & $\hat\beta_{P\hat h}$ \\
+\midrule
+\multirow{5}{*}{MMLU-Pro}
+  & Claude Haiku  & $-$0.532$^{***}$ & $-$32.531$^\dagger$   & $+$6.885$^\dagger$  & \multicolumn{3}{c}{--- \tiny{($\hat h$ collapsed)}} \\
+  & Claude Sonnet & $-$0.192$^{***}$ & $-$0.907$^{***}$      & $+$0.083$^{**}$     & $-$0.047$^\dagger$ & $+$2.677$^{***}$ & $-$0.267$^{***}$ \\
+  & GPT-5.4       & $-$0.103$^{***}$ & $-$2.248$^{***}$      & $+$0.002$^\dagger$  & $-$0.116$^{**}$    & $+$3.027$^{***}$ & $+$0.044$^\dagger$ \\
+  & GPT-5.4 Mini  & $+$0.087$^{***}$ & $-$1.396$^{**}$       & $-$0.053$^\dagger$  & $+$0.061$^\dagger$ & $+$1.987$^{***}$ & $+$0.078$^\dagger$ \\
+  & GPT-5.4 Nano  & $+$0.274$^{***}$ & $-$0.256$^\dagger$    & $+$0.105$^\dagger$  & $+$0.329$^\dagger$ & $+$0.919$^\dagger$ & $-$0.083$^\dagger$ \\
+\addlinespace
+\multirow{5}{*}{GPQA-Diam.}
+  & Claude Haiku  & $-$0.271$^{**}$  & $+$0.700$^\dagger$    & $-$0.120$^\dagger$  & $-$0.627$^\dagger$ & $-$2.449$^\dagger$ & $+$0.485$^\dagger$ \\
+  & Claude Sonnet & $+$1.297$^{***}$ & $-$12.170$^\dagger$   & $+$1.397$^\dagger$  & \multicolumn{3}{c}{--- \tiny{($\hat h$ collapsed)}} \\
+  & GPT-5.4       & $-$0.158$^{***}$ & $-$3.927$^{***}$      & $+$0.099$^\dagger$  & $-$0.119$^\dagger$ & $+$7.433$^{***}$ & $-$0.075$^\dagger$ \\
+  & GPT-5.4 Mini  & \multicolumn{3}{c}{--- \tiny{(separation)}}                                & \multicolumn{3}{c}{--- (singular)} \\
+  & GPT-5.4 Nano  & $+$0.321$^{***}$ & $-$0.956$^\dagger$    & $+$0.100$^\dagger$  & $+$0.335$^\dagger$ & $+$6.311$^\dagger$ & $-$0.018$^\dagger$ \\
+\bottomrule
+\end{tabular}
+\end{table*}

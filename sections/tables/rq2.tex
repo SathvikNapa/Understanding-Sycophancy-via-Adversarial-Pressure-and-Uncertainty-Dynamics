@@ -1,4 +1,4 @@
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{RQ2: per-model logistic regression coefficients predicting
   per-turn answer flip, by dataset. Model:
@@ -13,7 +13,7 @@
   Significance: $^{***}p{<}0.001$, $^{**}p{<}0.01$, $^{*}p{<}0.05$,
   $^\dagger p{\geq}0.05$. $R^2 =$ McFadden pseudo-$R^2$.
   $n =$ turn-level observations (T0-correct runs only).
-  N/A: unidentified fit (near-perfect separation).}
+  ---: unidentified fit (near-perfect separation).}
 \label{tab:rq2}
 \small\setlength{\tabcolsep}{3pt}
 \begin{tabular}{ll ccccc}
@@ -31,8 +31,8 @@
   & Claude Haiku  & $-$0.271$^{**}$  & $+$0.700$^\dagger$  & $-$0.120$^\dagger$  & 0.027 & 1{,}554 \\
   & Claude Sonnet & $+$1.297$^{***}$ & $-$12.170$^\dagger$ & $+$1.397$^\dagger$  & 0.279 & 762 \\
   & GPT-5.4       & $-$0.158$^{***}$ & $-$3.927$^{***}$    & $+$0.099$^\dagger$  & 0.072 & 2{,}958 \\
-  & GPT-5.4 Mini  & \multicolumn{5}{c}{N/A (near-perfect separation, fit divergent)} \\
+  & GPT-5.4 Mini  & \multicolumn{5}{c}{--- \tiny{(near-perfect separation, fit divergent)}} \\
   & GPT-5.4 Nano  & $+$0.321$^{***}$ & $-$0.956$^\dagger$  & $+$0.100$^\dagger$  & 0.042 & 1{,}938 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
