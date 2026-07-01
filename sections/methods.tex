@@ -386,15 +386,22 @@ answer any of our research questions.
 \paragraph{Resulting coverage.}
 Table~\ref{tab:coverage} summarizes the resulting (model, dataset)
 matrix. By the eligibility criterion we omit Gemini 3.5 Flash on
-MMLU-Pro and GPQA-Diamond: on both datasets, Gemini's baseline answer
-distribution is unanimous on essentially every question we sampled at
-$K = 25$, collapsing the entire question pool into the $H = 0$ bin.
-Gemini 3.5 Flash is included on HLE, where its baseline distribution
-populates three of the five quantile bins. On the remaining cells, the
-five Claude/GPT targets each satisfy the criterion with at least two
-populated bins on every benchmark; full pressure runs are completed on
-MMLU-Pro and GPQA-Diamond, and on HLE we currently report results for
-GPT-5.4 and Gemini 3.5 Flash with the remaining four HLE cells
-deferred to future work (Section~\ref{sec:limitations}).
+MMLU-Pro and GPQA-Diamond ($\ast$): on both datasets, Gemini's
+baseline answer distribution is unanimous on essentially every
+question we sampled at $K = 25$, collapsing the entire question pool
+into the $H = 0$ bin. Gemini 3.5 Flash is included on HLE, where its
+baseline distribution populates three of the five quantile bins.
+Full pressure runs are now completed for all six targets on all
+three benchmarks, but two HLE cells (Claude Haiku, Claude Sonnet)
+are marked $\varnothing$: these targets have essentially no
+$T_0$-correct questions on HLE, so the certain-vs.-uncertain
+contrast is undefined even though the pressure runs exist. This is
+an eligibility failure at the target-benchmark level (the model
+cannot answer HLE questions well enough at baseline to have a
+correct-at-$T_0$ subset) rather than at the entropy-variance level.
+The four HLE cells that satisfy both criteria (GPT-5.4, GPT-5.4
+Mini, GPT-5.4 Nano, Gemini 3.5 Flash) contribute to all downstream
+HLE analyses; see Section~\ref{sec:limitations} for the associated
+sample-size caveat.
 
 \input{tables/coverage}

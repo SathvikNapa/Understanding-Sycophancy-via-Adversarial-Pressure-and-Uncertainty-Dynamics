@@ -3,20 +3,23 @@
 \small
 \setlength{\tabcolsep}{6pt}
 \renewcommand{\arraystretch}{1.15}
-\caption{(Model, dataset) coverage. $\checkmark$ = full pressure runs
-  completed; $\dagger$ = pressure runs deferred to future work;
-  $\ast$ = excluded \emph{ex ante} under the eligibility criterion
-  (single populated entropy bin).}
+\caption{(Model, dataset) coverage after HLE follow-up runs.
+  $\checkmark$ = full pressure runs completed and eligibility
+  criterion satisfied; $\ast$ = excluded \emph{ex ante} under the
+  eligibility criterion (single populated entropy bin);
+  $\varnothing$ = pressure runs completed but the model has
+  essentially no $T_0$-correct questions on the benchmark, so no
+  certain-vs.-uncertain contrast is defined.}
 \label{tab:coverage}
 \begin{tabular}{l ccc}
 \toprule
 \textbf{Model} & \textbf{MMLU-Pro} & \textbf{GPQA-Diam.} & \textbf{HLE} \\
 \midrule
-Claude 4.5 Haiku     & $\checkmark$ & $\checkmark$ & $\dagger$ \\
-Claude 4.6 Sonnet    & $\checkmark$ & $\checkmark$ & $\dagger$ \\
+Claude 4.5 Haiku     & $\checkmark$ & $\checkmark$ & $\varnothing$ \\
+Claude 4.6 Sonnet    & $\checkmark$ & $\checkmark$ & $\varnothing$ \\
 GPT-5.4              & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-GPT-5.4 Mini         & $\checkmark$ & $\checkmark$ & $\dagger$ \\
-GPT-5.4 Nano         & $\checkmark$ & $\checkmark$ & $\dagger$ \\
+GPT-5.4 Mini         & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+GPT-5.4 Nano         & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
 Gemini 3.5 Flash     & $\ast$       & $\ast$       & $\checkmark$ \\
 \bottomrule
 \end{tabular}
