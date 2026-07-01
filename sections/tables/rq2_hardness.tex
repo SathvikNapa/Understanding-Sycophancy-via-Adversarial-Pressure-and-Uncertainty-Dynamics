@@ -1,15 +1,6 @@
 \begin{table*}[t]
 \centering
-\caption{RQ2 robustness check: same specification refit with
-  \emph{calibrated hardness} $\hat h \in [0, 1]$ (from the isotonic
-  regression of Section~\ref{sec:methods:hardness}) in place of
-  mean-centered entropy $H_c$. Model:
-  $\mathrm{logit}\,P(\mathrm{flip}) = \beta_0 + \hat\beta_P\,P +
-   \hat\beta_{\hat h}\,\hat h + \hat\beta_{P\hat h}\,P\!\cdot\!\hat h$.
-  Because $\hat h$ has the opposite orientation to $H$
-  ($\hat h{=}0$ means certain-correct, $\hat h{=}1$ means
-  certain-error), $\hat\beta_{\hat h}$ is significant \emph{positive}
-  wherever $\hat\beta_H$ in Table~\ref{tab:rq2} is significant
+\caption{RQ2 robustness check: same specification refit with \emph{calibrated hardness} $\hat h \in [0, 1]$ (from the isotonic regression of Section~\ref{sec:methods:hardness}) in place of mean-centered entropy $H_c$. Model: $\mathrm{logit}\,P(\mathrm{flip}) = \beta_0 + \hat\beta_P\,P + \hat\beta_{\hat h}\,\hat h + \hat\beta_{P\hat h}\,P\!\cdot\!\hat h$. Because $\hat h$ has the opposite orientation to $H$ ($\hat h{=}0$ means certain-correct, $\hat h{=}1$ means certain-error), $\hat\beta_{\hat h}$ is significant \emph{positive} wherever $\hat\beta_H$ in Table~\ref{tab:rq2} is significant
   \emph{negative}. Cells marked --- have $\hat h$ that is essentially
   constant within the cell (isotonic quantization; range $\leq 0.01$)
   and produce numerically divergent fits.
