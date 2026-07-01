@@ -1,0 +1,39 @@
+\begin{table*}[t]
+\centering
+\caption{RQ2: Per-model logistic regression coefficients predicting
+  per-turn answer flip, by dataset.
+  Model: $\mathrm{logit}\,P(\mathrm{flip}) = \beta_0 +
+   \hat\beta_P\,P + \hat\beta_H\,H + \hat\beta_{PH}\,P{\cdot}H$.
+  $\hat\beta_P > 0$ means flip probability increases with pressure;
+  $\hat\beta_H < 0$ means higher uncertainty raises flip probability;
+  $\hat\beta_{PH} > 0$ means each additional pressure turn has a larger
+  effect on uncertain questions than on certain ones.
+  Significance: $^{***}p{<}0.001$, $^{**}p{<}0.01$, $^{*}p{<}0.05$,
+  $^\dagger p{\geq}0.05$.
+  $R^2 =$ McFadden pseudo-$R^2$.
+  $n =$ turn-level observations (correct-at-$T_0$ questions $\times$
+  6 turns $\times$ repeated samples); $n$ varies per cell because the
+  number of correct-at-$T_0$ questions differs per model.
+  Claude Haiku and GPT-5.4 on GPQA-Diamond are omitted because their
+  baseline distribution is unanimous-uncertain (no $H = 0$
+  observations), leaving $\hat\beta_H$ unidentified.}
+\label{tab:rq2}
+\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llccccc}
+\toprule
+\textbf{Dataset} & \textbf{Model} & $\hat\beta_P$ & $\hat\beta_H$ & $\hat\beta_{PH}$ & $R^2$ & $n$ \\
+\midrule
+\multirow{5}{*}{MMLU-Pro}
+  & Claude Haiku  & $+$1.378$^\dagger$  & $-$25.116$^{***}$ & $+$0.484$^\dagger$  & 0.687 & 12{,}600 \\
+  & Claude Sonnet & $-$0.116$^{***}$    & $-$2.063$^{***}$  & $+$0.110$^{***}$    & 0.368 & 12{,}600 \\
+  & GPT-5.4       & $-$0.150$^{***}$    & $-$1.979$^{***}$  & $-$0.004$^\dagger$  & 0.038 & 8{,}640  \\
+  & GPT-5.4 Mini  & $+$0.086$^{***}$    & $-$2.541$^{***}$  & $-$0.030$^\dagger$  & 0.035 & 7{,}290  \\
+  & GPT-5.4 Nano  & $+$0.279$^{***}$    & $-$1.193$^\dagger$ & $+$0.038$^\dagger$ & 0.039 & 4{,}110  \\
+\addlinespace
+\multirow{3}{*}{GPQA-Diam.}
+  & Claude Sonnet & $+$1.945$^\dagger$  & $-$7.619$^{***}$  & $+$1.118$^\dagger$  & 0.557 & 2{,}370 \\
+  & GPT-5.4 Mini  & $-$0.000$^\dagger$  & $-$24.469$^\dagger$ & $-$1.964$^\dagger$ & 0.059 & 2{,}370 \\
+  & GPT-5.4 Nano  & $+$0.495$^{***}$    & $+$0.634$^\dagger$ & $+$0.093$^\dagger$  & 0.079 & 2{,}370 \\
+\bottomrule
+\end{tabular}
+\end{table*}

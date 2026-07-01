@@ -1,0 +1,375 @@
+\section{Methods}
+\label{sec:methods}
+
+We describe the four components of our evaluation framework: (i) the uncertainty estimator, (ii) the multi-turn pressure protocol, (iii) the flip definition, and (iv) the external calibrator used for chain-of-thought analysis. All four components are black-box: they require only API access and assume nothing about model weights, logits, or internal states.
+
+\subsection{Uncertainty Signals}
+\label{sec:methods:signals}
+
+Three distinct uncertainty signals underpin our analyses, each operating at a different temporal and analytical granularity. We introduce them together here as a reference; formal definitions and usage details are deferred to the subsections cross-referenced below.
+
+\paragraph{(1) Pre-pressure behavioral uncertainty $H(q;\mathcal{M})$.}
+Shannon entropy over $K = 25$ independent answer samples drawn from the target model at temperature 1, conditioned only on the question $q$ (no adversarial context). $H(q;\mathcal{M}) = 0$ when all samples agree (the model is behaviorally certain) and $H(q;\mathcal{M}) < 0$ when samples spread across multiple options. This is the headline uncertainty signal of the paper: it characterizes a model's belief state on $q$ \emph{before} any pressure begins, and serves as the regressor in RQ1, RQ2, and RQ3. Defined formally in
+
+Section~\ref{sec:methods:entropy}.
+
+\paragraph{(2) Per-turn belief entropy $B_t(q;\mathcal{M})$.}
+Shannon entropy over the $R = 5$ majority beliefs obtained from running $R$ independent multi-turn dialogues at pressure turn $t$, where the majority belief in each dialogue is the modal answer across $K_{\text{turn}} = 5$ re-polls within that dialogue. $B_t$ captures the spread of the model's response across independent adversarial conversations \emph{at a given turn under pressure}, and appears as the \emph{Bel.\ Ent.} column of the RQ4 table
+(Appendix~\ref{app:rq4}). $B_t$ and $H$ are distinct measurements: $H$ measures spread before any pressure with no dialogue context, while $B_t$ measures spread during pressure across replicate dialogues. Defined in Section~\ref{sec:methods:pressure}.
+
+\paragraph{(3) Step-level calibrated confidence $\hat{\gamma}_\ell$.}
+Verbalized confidence $\hat{\gamma}_\ell \in [0, 100]$ assigned by the external calibrator $\mathcal{C}$ at step $\ell$ of a free-form reasoning trace, alongside an inferred belief $\hat{c}_\ell$ over the option set $\mathcal{A}$. Unlike $H$ and $B_t$, which are black-box behavioral measures derived from repeated sampling on the target model, $\hat{\gamma}_\ell$ is a verbalized scalar that approximates how confident the partial reasoning \emph{appears} to an external reader. Defined in Section~\ref{sec:methods:calibrator} and validated against ground-truth correctness in
+
+Appendix~\ref{app:calibration}.
+
+\paragraph{(4) Calibrated hardness $\hat{h}(q;\mathcal{M},\mathcal{D})$.}
+A complementary view of pre-pressure uncertainty: instead of using the raw entropy $H(q;\mathcal{M})$, we map $|H|$ to a per-(model, dataset) calibrated probability that the model answers $q$
+incorrectly on a fresh attempt. The mapping is fit by isotonic regression on baseline data, yielding $\hat{h} \in [0, 1]$ on the same scale as expected error rate. Defined in
+Section~\ref{sec:methods:hardness}; this signal is used as an alternative to $H$ in supplementary regressions and to construct the Easy/Medium/Hard bins of Appendix~\ref{app:entropy_dist}.
+
+The four signals are complementary. $H$ partitions the question pool into a stable certain group ($H = 0$) and a volatile uncertain group ($H < 0$); $\hat{h}$ projects that partition onto a calibrated error-probability scale for cross-cell comparability; $B_t$ tracks how the volatility evolves turn by turn under sustained pressure; and $\hat{\gamma}_\ell$ provides a step-level signal inside a single reasoning trace that exposes \emph{where in the reasoning} a flip is signaled. Together they support measurement at three resolutions: \emph{per question} (via $H$ and $\hat{h}$), \emph{per turn} (via $B_t$), and \emph{per reasoning step} (via $\hat{\gamma}_\ell$).
+
+\subsection{Behavioral Uncertainty via Repeated Sampling}
+\label{sec:methods:entropy}
+
+Let $\mathcal{M}$ denote a target model and $q$ a multiple-choice question
+with option set $\mathcal{A} = \{A, B, \ldots, J\}$ and gold answer
+$a^* \in \mathcal{A}$. We estimate the model's pre-pressure belief
+distribution by sampling $K = 25$ independent answers from $\mathcal{M}$
+at temperature~$1$, conditioned only on the question (no adversarial
+turns):
+\[
+S_q = \{a^{(1)}, a^{(2)}, \ldots, a^{(K)}\}, \qquad a^{(k)} \sim \mathcal{M}(\cdot \mid q).
+\]
+The empirical distribution over options is $\hat{p}_q(a) = \tfrac{1}{K}\sum_k \mathbf{1}[a^{(k)} = a]$,
+and we define our entropy signal as
+\[
+H(q; \mathcal{M}) = \sum_{a \in \mathcal{A}} \hat{p}_q(a)\,\log \hat{p}_q(a).
+\]
+This is the negative of standard Shannon entropy, so that
+$H(q;\mathcal{M}) = 0$ when all $K$ samples agree (the model is
+behaviorally certain) and $H(q;\mathcal{M}) < 0$ when samples spread
+across multiple options (more negative = more spread). We use this
+sign convention throughout so that the certain group ($H = 0$) and
+the uncertain group ($H < 0$) of Section~\ref{sec:results} are
+defined consistently. We use the natural logarithm throughout, and
+treat $H(q;\mathcal{M})$ as a black-box proxy for the model's
+epistemic state on question $q$ before any adversarial interaction.
+
+\paragraph{Relation to semantic entropy.}
+\citet{kuhn2023semanticuncertaintylinguisticinvariances} introduce
+semantic entropy for open-ended generation, where surface variation
+between samples (e.g.\ paraphrases of the same answer) inflates token-level
+entropy estimates. Their solution is to cluster samples by semantic
+equivalence using an entailment model before computing entropy over
+clusters. In our setting, answers are discrete option letters $A$--$J$
+with no surface variation: two samples either denote the same option or
+denote different options. The semantic clustering step is therefore an
+identity operation, and Shannon entropy over the empirical option
+distribution is equivalent to semantic entropy in this regime. We adopt
+this simpler estimator and refer to it as \textbf{behavioral uncertainty}
+to distinguish it from token-level confidence measures.
+
+\paragraph{Why $K = 25$.}
+With $K = 25$, the minimum resolvable change in $\hat{p}_q$ is $0.04$,
+sufficient to distinguish unanimous ($H = 0$) from near-unanimous
+($\hat{p} = 24/25$, $H \approx 0.16$) responses while keeping per-question
+sampling cost tractable across our included model families.
+
+\subsection{Calibrated Hardness via Isotonic Regression}
+\label{sec:methods:hardness}
+
+The raw entropy $H(q;\mathcal{M})$ is a behavioral signal whose
+absolute magnitude is not directly comparable across (model, dataset)
+cells: a value of $H = -0.5$ may correspond to a very different
+expected error rate for one model on MMLU-Pro than for another model
+on GPQA-Diamond. To obtain a per-cell-comparable scalar, we project
+$|H|$ onto the empirical baseline error rate via isotonic regression.
+
+For each (model, dataset) cell $(\mathcal{M}, \mathcal{D})$ we
+collect, at baseline ($T_0$), the empirical error indicator
+$y_q = \mathbf{1}[\hat{a}_{q,0} \neq a^*_q]$ across all questions
+$q \in \mathcal{D}$. We fit a non-decreasing function
+$\phi_{\mathcal{M},\mathcal{D}}: \mathbb{R}_{\geq 0} \to [0, 1]$ that
+minimizes the squared error
+$\sum_q \big(y_q - \phi_{\mathcal{M},\mathcal{D}}(|H(q;\mathcal{M})|)\big)^2$
+subject to monotonicity, using the standard pool-adjacent-violators
+algorithm. The \emph{calibrated hardness} of a question is then
+\[
+\hat{h}(q;\mathcal{M},\mathcal{D}) = \phi_{\mathcal{M},\mathcal{D}}\!\bigl(|H(q;\mathcal{M})|\bigr) \in [0, 1],
+\]
+interpretable as the calibrated probability that $\mathcal{M}$ will
+err on $q$ on a fresh sample, conditional on the observed baseline
+entropy. By construction $\hat{h} = 0$ means the model is expected
+to answer correctly with certainty and $\hat{h} = 1$ means expected
+to err. The mapping $\phi_{\mathcal{M},\mathcal{D}}$ is fit per cell
+and the same question can therefore have different hardness under
+different (model, dataset) cells.
+
+\paragraph{Hardness bins.} For partitioned analyses we discretize
+$\hat{h}$ into three fixed-cut bins:
+\textbf{Easy} ($\hat{h} \in [0, \tfrac{1}{3})$),
+\textbf{Medium} ($\hat{h} \in [\tfrac{1}{3}, \tfrac{2}{3})$), and
+\textbf{Hard} ($\hat{h} \in [\tfrac{2}{3}, 1]$). Empirically, the
+isotonic fit is heavily quantized in many cells, with $>50\%$ of
+questions mapping to a single $\hat{h}$ value; the resulting bin
+distributions are reported in Appendix~\ref{app:entropy_dist}.
+
+\subsection{Multi-Turn Pressure Protocol}
+\label{sec:methods:pressure}
+
+For each question $q$ we run a six-turn adversarial dialogue. After the
+target model produces an initial answer (turn $T_0$), an adversary
+asserts a specific wrong answer $a^\dagger \neq a^*$ across turns
+$T_1$--$T_6$ using a fixed escalation sequence of rhetorical strategies.
+The wrong answer $a^\dagger$ is held constant within a dialogue and is
+drawn uniformly from $\mathcal{A} \setminus \{a^*\}$. The six pressure
+levels (Table~\ref{tab:pressure_levels}) escalate from low-authority
+personal pushback to high-authority external claims and finally to
+crowd-consensus framing.
+
+\input{sections/tables/pressure_levels}
+
+\paragraph{Rationale for escalation order.}
+The six prompts span the rhetorical strategies most commonly identified
+in human persuasion research and in prior sycophancy benchmarks
+\citep{liu2025truthdecayquantifyingmultiturn,hong2025syconbench}:
+personal pushback (no authority claim) $\rightarrow$ first-person certainty
+$\rightarrow$ external evidence appeal $\rightarrow$ expert authority
+$\rightarrow$ accusatory framing $\rightarrow$ universal consensus. Ordering
+from low- to high-authority lets us measure both \textbf{whether} a model
+flips and \textbf{which rhetorical category} is sufficient to cause the
+first flip, while keeping the sequence comparable across models and
+questions. The fixed ordering trades adaptive adversary strength for
+controlled comparison; an adaptive adversary is left to future work.
+
+\paragraph{Repeated dialogues for per-turn uncertainty.}
+For each question we run $R = 5$ independent dialogues with different
+random seeds, and at every turn $t \in \{T_0, \ldots, T_6\}$ we re-poll
+the model $K_{\text{turn}} = 5$ times. This yields $R \cdot K_{\text{turn}} = 25$
+samples per (question, turn) cell, matching the resolution used for the
+pre-pressure estimate in Section~\ref{sec:methods:entropy}.
+
+\paragraph{Per-turn belief entropy $B_t$.}
+Within dialogue $r \in \{1, \ldots, R\}$ at turn $t$, let
+$\hat{a}_{q,t,r} = \arg\max_a \hat{p}_{q,t,r}(a)$ be the modal answer
+across the $K_{\text{turn}}$ re-polls of that dialogue (its
+\emph{majority belief}). Let
+$\hat{\pi}_{q,t}(a) = \tfrac{1}{R}\sum_{r=1}^{R}
+\mathbf{1}[\hat{a}_{q,t,r} = a]$
+denote the empirical distribution of majority beliefs across the $R$
+dialogues. The per-turn belief entropy is
+\[
+B_t(q;\mathcal{M}) = \sum_{a \in \mathcal{A}} \hat{\pi}_{q,t}(a)\,\log \hat{\pi}_{q,t}(a),
+\]
+using the same sign convention as $H$ in
+Section~\ref{sec:methods:entropy}: $B_t = 0$ when all $R$ dialogues
+land on the same majority answer at turn $t$, and $B_t < 0$ when the
+$R$ dialogues disagree (more negative = more spread across independent
+dialogues). $B_t$ is the \emph{Bel.\ Ent.} column reported per
+(model, dataset, turn) cell in Table~\ref{tab:rq4} and is the
+operational definition of \emph{consensus loss} for the fragmenter
+analysis: a query is said to \emph{lose consensus} at turn $t$ when
+no answer wins a majority of the $R$ dialogues, equivalently when
+$\hat{\pi}_{q,t}$ has no mode at $\geq \lceil R/2 \rceil = 3$
+dialogues.
+
+\subsection{Flip Definition}
+\label{sec:methods:flip}
+
+At each turn $t$ we compute the majority answer
+$\hat{a}_t = \arg\max_a \hat{p}_{q,t}(a)$ from the 5 repeated polls within
+a single dialogue. A dialogue \textbf{flips} at turn $t$ if
+\[
+\hat{a}_{t-1} = a^* \quad \text{and} \quad \hat{a}_t = a^\dagger.
+\]
+The \textbf{turn-of-flip} (ToF) is the smallest such $t$; a dialogue that
+never satisfies the condition through $T_6$ is recorded as
+ToF~$=$~$\varnothing$. To avoid conflating sycophancy with baseline error,
+all analyses are restricted to questions for which the model answered
+correctly at $T_0$ (majority $\hat{a}_0 = a^*$ in at least four of five
+runs); wrong-from-start questions are excluded throughout.
+
+\subsection{Statistical Models}
+\label{sec:methods:stats}
+
+We use two regression specifications throughout the analyses, both
+fit by maximum likelihood with a logit link on the binary flip
+outcome.
+
+\paragraph{Per-model logistic regression.}
+For each (model, dataset) cell we fit a logistic regression of the
+per-turn flip outcome on pressure level $P \in \{1, \ldots, 6\}$
+(the turn index from Section~\ref{sec:methods:pressure}), baseline
+entropy $H = H(q;\mathcal{M}) \in (-\infty, 0]$ (from
+Section~\ref{sec:methods:entropy}), and their interaction $P H$:
+\[
+\mathrm{logit}\,\Pr(\mathrm{flip}_{q,t}) =
+\beta_0 + \beta_P\,P_t + \beta_H\,H_q + \beta_{PH}\,P_t H_q.
+\]
+The coefficient $\beta_P$ is the dose-response slope: $\beta_P < 0$
+identifies a \emph{resister} (flip probability falls as pressure
+accumulates), $\beta_P > 0$ a \emph{capitulator}. The coefficient
+$\beta_H$ is the uncertainty effect ($\beta_H < 0$ means more
+negative $H$, i.e.\ higher uncertainty, raises flip probability). The
+interaction $\beta_{PH}$ tests whether pressure amplifies pre-existing
+uncertainty: $\beta_{PH} > 0$ indicates that each additional pressure
+turn raises flip probability more on uncertain questions than on
+certain ones. Per-model coefficients with $95\%$ confidence intervals are
+visualized as a forest plot in \autoref{fig:rq2_coefs}; raw
+numerical estimates are tabulated in Appendix~\ref{app:rq2_table}.
+
+\paragraph{Mixed-effects extension.}
+To test whether the pressure-by-entropy interaction observed in the
+per-model regressions survives pooling, we additionally fit a
+generalized linear mixed model with binomial link, the same fixed
+effects, and a model-level random intercept
+$u_m \sim \mathcal{N}(0, \sigma_u^2)$:
+\[
+\mathrm{logit}\,\Pr(\mathrm{flip}_{m,q,t}) =
+\beta_0 + u_m + \beta_P\,P_t + \beta_H\,H_{m,q} + \beta_{PH}\,P_t H_{m,q}.
+\]
+The random intercept absorbs overall susceptibility differences
+across models, so a significant fixed-effect $\beta_{PH}$ in this
+specification cannot be explained by between-model differences in
+baseline flip rate. The mixed-effects fit serves as a robustness
+check for the headline interaction; the full output is reported in
+Appendix~\ref{app:mixed_effects}.
+
+\paragraph{Restriction to correct-at-$T_0$.}
+Both regressions are fit only on dialogues whose target model
+answered correctly at $T_0$ (majority $\hat{a}_0 = a^*$ in at least
+four of five runs), consistent with the Flip Definition above. This
+restriction ensures that the flip event is well-defined: a model
+that begins wrong cannot ``flip from correct to wrong.'' The
+correct-at-$T_0$ count differs per (model, dataset) cell, which is
+the source of the varying $n$ reported in
+Appendix~\ref{app:rq2_table}.
+
+\subsection{External Calibrator for Reasoning Traces}
+\label{sec:methods:calibrator}
+
+For RQ4 we extend the framework to chain-of-thought (CoT) reasoning.
+The target model is prompted to reason step by step but is instructed
+\textbf{not} to emit inline confidence or current-belief markers; the
+output is a free-form reasoning trace $\tau = (z_1, \ldots, z_L)$
+terminating in a single \texttt{FINAL ANSWER: <letter>} line, where each
+$z_\ell$ is one reasoning step. We deliberately suppress inline
+self-reported confidence because prior work shows that reasoning models
+often produce confident but wrong self-assessments
+\citep{mei2025reasoninguncertainty,yoon2025reasoningconfidence}; for
+our purposes the relevant signal is what the trace \textbf{appears} to
+support to an external reader, not what the target asserts about
+itself.
+
+A separate calibrator model $\mathcal{C}$ reads each prefix of the trace
+and assigns a belief and confidence:
+\[
+(\hat{c}_\ell,\, \hat{\gamma}_\ell) = \mathcal{C}\!\left(q,\, z_1,\ldots, z_\ell\right),
+\]
+where $\hat{c}_\ell \in \mathcal{A}$ is the option the partial reasoning
+appears to support and $\hat{\gamma}_\ell \in [0, 100]$ is its expressed
+verbalized confidence \citep{tian2023justask}. The calibrator is
+strictly incremental: when evaluating step $\ell$ it sees only
+$z_1, \ldots, z_\ell$ and never future steps, so its output reflects the
+evidential state of the argument as it unfolds rather than a
+retrospective label. This prefix-only setup follows the partial-trace
+success-probability framing used by \citet{park2025knowwhatyoudontknow}
+for process reward models, but differs in two ways: we treat the
+prefix-conditioned signal as a measurement of the target's belief
+trajectory rather than as a stopping rule for best-of-$N$ search, and
+we do not train $\mathcal{C}$ to be a calibrated estimator: we use an
+off-the-shelf LLM and validate it post hoc (below). The setup is also
+related to introspective uncertainty quantification
+\citep{mei2025reasoninguncertainty}, with two distinctions:
+$\mathcal{C}$ is a \textbf{different} model from the target (not a
+second-pass critique by the same model), and it operates step by step
+rather than once over the whole trace. Per-step confidence trajectories
+of this kind have been used as a temporal signal in
+\citet{mao2025temporalizingconfidence}; we use them analogously to
+detect the moment of capitulation under pressure. The same six-turn
+pressure protocol (Section~\ref{sec:methods:pressure}) is applied during
+the calibrated reasoning runs.
+
+\paragraph{Choice of calibrator.}
+We use GPT-5.4 Mini as $\mathcal{C}$ for three reasons. First, it is
+strong enough as a reader to identify the answer a partial CoT trace
+supports while remaining cheap enough to scale across approximately
+$10^5$ step-level calls per target model. Second, it is from a different
+model family than three of our five included target models and a
+different capability tier than the remaining two, which limits in-family
+self-assessment effects of the kind reported by
+\citet{mei2025reasoninguncertainty}, where a model's introspective
+uncertainty about its own reasoning is systematically biased. Third, we
+validate its reliability post hoc: across $82{,}552$ step-level
+predictions $\mathcal{C}$ obtains an Expected Calibration Error of
+$0.305$ and a Brier score of $0.324$ \citep{li2025conftuner} against
+ground-truth correctness, with reliability diagrams showing monotonic
+calibration in the $[0, 0.8]$ confidence range; full calibration metrics
+across all target models are reported in Appendix~\ref{app:calibration}.
+
+\paragraph{Calibration as a measurement tool, not a correction.}
+We use $\mathcal{C}$ to obtain a per-step belief and confidence signal
+for the \textbf{target} model's reasoning trace, not to revise or replace
+the target model's answer. This separates the question we ask (``does
+the trace expose capitulation before the final answer changes?'') from
+the calibrator's own decisions, and distinguishes our setup from work
+that injects uncertainty signals \textbf{into} the reasoning process to
+trigger downstream actions such as retrieval or abstention
+\citep{guo2026llmsshouldexpressuncertainty}.
+
+\subsection{Datasets, Target Models, and Coverage}
+\label{sec:methods:setup}
+
+We evaluate on stratified subsets of three benchmarks: MMLU-Pro
+\citep{wang2024mmluprorobustchallengingmultitask} (420 questions,
+ten-choice), GPQA-Diamond
+\citep{rein2023gpqagraduatelevelgoogleproofqa} (graduate-level
+google-proof biology, chemistry, and physics; 79 questions answered
+correctly at $T_0$ by all included models), and Humanity's Last Exam
+(HLE) \citep{hle} (160 questions sampled from an expert-curated
+frontier-difficulty exam). The three benchmarks span a difficulty
+gradient: MMLU-Pro is the easiest (most models reach near-unanimous
+baseline answers on the majority of questions), GPQA-Diamond
+intermediate, and HLE the hardest (baseline answer distributions are
+broadly non-degenerate on most questions). Stratification within each
+dataset is by baseline entropy bin (five quantile bins on
+$H(q;\mathcal{M})$ within each model) so that downstream flip-rate
+comparisons are controlled for pre-pressure uncertainty.
+
+Target models span three families and three capability tiers: GPT-5.4,
+GPT-5.4 Mini, and GPT-5.4 Nano (OpenAI); Claude 4.6 Sonnet and
+Claude 4.5 Haiku (Anthropic); and Gemini 3.5 Flash (Google). All
+targets are accessed via API at temperature~$1$ with model-default
+sampling parameters.
+
+\paragraph{Eligibility criterion for (model, dataset) cells.}
+The certain-vs.-uncertain comparison required by RQ1 presupposes that a
+(model, dataset) cell exhibits non-trivial baseline entropy variance:
+at minimum, that both the certain group ($H = 0$) and the uncertain
+group ($H < 0$) are non-empty. We operationalize this as a
+minimum-coverage criterion: a (model, dataset) cell is included only
+if its baseline answer distribution populates at least two quantile
+entropy bins under the binning procedure of
+Section~\ref{sec:methods:entropy}. Cells that collapse to a single
+populated bin yield no certain-vs.-uncertain contrast to estimate and
+are excluded \emph{ex ante}, before any pressure runs are launched.
+This criterion makes the cross-cell coverage table principled rather
+than accidental and prevents wasted compute on cells that cannot
+answer any of our research questions.
+
+\paragraph{Resulting coverage.}
+Table~\ref{tab:coverage} summarizes the resulting (model, dataset)
+matrix. By the eligibility criterion we omit Gemini 3.5 Flash on
+MMLU-Pro and GPQA-Diamond: on both datasets, Gemini's baseline answer
+distribution is unanimous on essentially every question we sampled at
+$K = 25$, collapsing the entire question pool into the $H = 0$ bin.
+Gemini 3.5 Flash is included on HLE, where its baseline distribution
+populates three of the five quantile bins. On the remaining cells, the
+five Claude/GPT targets each satisfy the criterion with at least two
+populated bins on every benchmark; full pressure runs are completed on
+MMLU-Pro and GPQA-Diamond, and on HLE we currently report results for
+GPT-5.4 and Gemini 3.5 Flash with the remaining four HLE cells
+deferred to future work (Section~\ref{sec:limitations}).
+
+\input{sections/tables/coverage}

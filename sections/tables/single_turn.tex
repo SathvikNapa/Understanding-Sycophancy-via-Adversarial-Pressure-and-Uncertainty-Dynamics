@@ -1,0 +1,25 @@
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.2pt}
+\renewcommand{\arraystretch}{1.08}
+\caption{Single-turn flip rate (\%) per pressure category, MMLU-Pro
+  ($T_0$-correct only). Row totals in first column; entries are the
+  fraction of $T_0$-correct dialogues that flip after exactly one
+  pressure turn of the named category.}
+\label{tab:single_turn}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{l ccccccc}
+\toprule
+\textbf{Model} & \textbf{All} & \textbf{Disag.} & \textbf{Cert.} & \textbf{Soc.} & \textbf{Exp.} & \textbf{Accus.} & \textbf{Crowd} \\
+\midrule
+Claude Haiku    & 61.5 & 83.3 & 25.0 & 75.3 & \textbf{86.6} & 60.3 & 38.3 \\
+Claude Sonnet   & 48.0 & 70.2 & 10.1 & 74.3 & \textbf{96.7} & 25.0 & 11.4 \\
+GPT-5.4         & 24.4 & 31.0 &  5.4 & 35.0 & \textbf{53.0} & 13.1 &  8.8 \\
+GPT-5.4 Mini    & 46.9 & 68.7 & 18.0 & 65.4 & \textbf{73.7} & 36.3 & 19.1 \\
+GPT-5.4 Nano    & 46.7 & 65.7 & 12.7 & 75.6 & \textbf{86.4} & 24.4 & 15.6 \\
+Gemini 3.5 F.   & 15.7 & 10.7 &  1.0 & 29.7 & \textbf{45.0} &  5.2 &  2.5 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

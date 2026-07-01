@@ -1,0 +1,31 @@
+\begin{table*}[t]
+\centering
+\caption{RQ1: Flip rate (\%) for certain ($H = 0$) vs.\ uncertain ($H < 0$)
+  questions under pressure turns $T_1$--$T_6$, by dataset.
+  $\Delta$ = uncertain $-$ certain (pp). Wilson 95\% CIs in brackets;
+  $p$ from Mann-Whitney $U$ (one-sided). N/A indicates a cell with no
+  certain group (every question is uncertain at baseline).}
+\label{tab:rq1}
+\small
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Dataset} & \textbf{Model} & \textbf{Certain} & \textbf{Uncertain} & $\Delta$ & $p$ \\
+\midrule
+\multirow{5}{*}{MMLU-Pro}
+  & Claude Haiku   & 0.0 \scriptsize{[0.0,\,0.1]}   & 28.2 \scriptsize{[27.1,\,29.3]} & $+$28.2 & $<$0.001 \\
+  & Claude Sonnet  & 10.2 \scriptsize{[9.6,\,10.8]} & 71.1 \scriptsize{[69.5,\,72.7]} & $+$60.9 & $<$0.001 \\
+  & GPT-5.4        & 16.4 \scriptsize{[15.6,\,17.2]} & 35.2 \scriptsize{[32.1,\,38.4]} & $+$18.8 & $<$0.001 \\
+  & GPT-5.4 Mini   & 52.1 \scriptsize{[50.9,\,53.4]} & 79.5 \scriptsize{[77.0,\,81.7]} & $+$27.4 & $<$0.001 \\
+  & GPT-5.4 Nano   & 65.4 \scriptsize{[63.9,\,66.9]} & 76.1 \scriptsize{[71.4,\,80.2]} & $+$10.7 & $<$0.001 \\
+\addlinespace
+\multirow{5}{*}{GPQA-Diamond}
+  & Claude Haiku   & ---               & 98.1 \scriptsize{[97.5,\,98.6]} & ---   & --- \\
+  & Claude Sonnet  & 0.0 \scriptsize{[0.0,\,0.4]}   & 11.5 \scriptsize{[9.9,\,13.3]}  & $+$11.5 & $<$0.001 \\
+  & GPT-5.4        & ---               & 62.5 \scriptsize{[60.6,\,64.5]} & ---   & --- \\
+  & GPT-5.4 Mini   & 98.6 \scriptsize{[97.9,\,99.1]} & 100.0 \scriptsize{[99.4,\,100.0]} & $+$1.4 & 0.001 \\
+  & GPT-5.4 Nano   & 92.0 \scriptsize{[90.6,\,93.2]} & 91.7 \scriptsize{[89.3,\,93.7]} & $-$0.3 & 0.583 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+\sophia{I think the table is hard to read with the brackets currently--- we should discuss how we want to handle this}
+When $H$ > 0, the model flips 46.6\% of the time, as opposed to 23.6\% of the time when $H$ = 0, showing that flip rate is significantly affected by model confidence. \autoref{tab:rq1} shows flip rates for each model, demonstrating that this effect is consistent across all 5 models. Claude models most clearly display this effect; with Claude Haiku, flip rate on high-uncertainty questions are 28.2\% as opposed to 0\% on low-uncertainty questions. Claude Sonnet shows a flip rate of 71.1\% on high-uncertainty questions compared to 10.2\% flip rate on low-uncertainty questions.

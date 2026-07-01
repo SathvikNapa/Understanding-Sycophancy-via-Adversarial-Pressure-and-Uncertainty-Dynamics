@@ -1,0 +1,68 @@
+\section{Experiments}
+
+We design four experiments aligned to RQ1--RQ4. The formal definitions
+of behavioral uncertainty, the six pressure levels, the flip metric, and
+the external calibrator are given in \autoref{sec:methods}; here we
+describe the analyses applied to those measurements.
+
+\paragraph{Experiment 1: Uncertainty and susceptibility (RQ1).}
+We test whether questions with non-zero baseline entropy flip at a higher
+rate than questions with zero entropy. Using behavioral uncertainty (defined in \autoref{sec:methods:signals}), we split
+correct-at-$T_0$ questions into a \textbf{certain} group ($H = 0$, all 25
+samples agree) and an \textbf{uncertain} group ($H < 0$, samples spread
+across at least two options). For each model we compute the per-question
+flip rate across pressure turns $T_1$--$T_6$ within each group and
+compare the two groups with a Mann-Whitney $U$ test, reporting Wilson
+95\% confidence intervals on each group's flip rate.
+
+\paragraph{Experiment 2: Pressure-uncertainty interaction (RQ2).}
+We test whether escalating social pressure increases the likelihood of
+sycophantic flipping, and whether this effect depends on the model's
+pre-pressure uncertainty (i.e., whether the marginal effect of each
+additional pressure turn varies with the baseline entropy $H(q)$).
+
+Concretely, we fit a logistic regression predicting the per-turn flip
+outcome from pressure level $P$ (the turn index, defined in
+\autoref{tab:pressure_levels}) baseline entropy $H$, and their
+interaction $P \times H$:
+\[
+P(\mathrm{flip}) =
+\sigma\!\left(\beta_0 + \beta_1 P + \beta_2 H + \beta_3 P H\right).
+\]
+A positive interaction coefficient $\beta_3 > 0$ would indicate that the
+marginal effect of each additional pressure turn is larger when the
+model is already uncertain: pressure amplifies pre-existing uncertainty
+rather than acting independently of it. A coefficient near zero
+would indicate that pressure has a uniform effect regardless of baseline
+uncertainty, and a negative coefficient would indicate that pressure is
+\textbf{less} effective on uncertain questions (a pattern we do not
+observe).
+
+\paragraph{Experiment 3: Per-model trajectories (RQ3).}
+We test whether the uncertainty-conditioned pressure effect holds
+uniformly across model families and capability tiers. We fit a
+mixed-effects logistic regression with the same fixed effects as
+Experiment~2 and a model-level random intercept, which lets the
+intercept (overall susceptibility) shift per model while estimating a
+shared pressure-entropy interaction. We additionally compute per-model
+flip rates at every turn $T_1$--$T_6$ and fit a linear trend
+(percentage points per turn) within each model. The sign of the
+per-model slope partitions models into two qualitative groups, which we
+analyze in \autoref{sec:results}.
+
+\paragraph{Experiment 4: Reasoning-trace capitulation (RQ4).}
+We examine whether capitulation is detectable in the chain-of-thought
+trace before the final answer changes. Using the free-form CoT prompt
+and external calibrator described in
+\autoref{sec:methods:calibrator}, we obtain per-step beliefs
+$\hat{c}_\ell$ and confidences $\hat{\gamma}_\ell$ for every reasoning
+trace in every dialogue. From these we compute, at each pressure turn
+$t$: (i) the belief entropy over the run-level majority beliefs, which
+measures how much the calibrator's read of the reasoning trace
+fluctuates across repeated samples; (ii) the majority-belief
+correctness, i.e.\ the fraction of runs whose final calibrated belief
+matches $a^*$; and (iii) the mean calibrated confidence at the final
+reasoning step, from which we derive the overconfidence gap
+(Conf.\ $-$ Maj.\ Correct). Together these three quantities let us ask
+whether the trace exposes capitulation earlier than the final answer
+trajectory and whether confidence tracks the underlying belief shift.

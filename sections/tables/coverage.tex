@@ -1,0 +1,23 @@
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.15}
+\caption{(Model, dataset) coverage. $\checkmark$ = full pressure runs
+  completed; $\dagger$ = pressure runs deferred to future work;
+  $\ast$ = excluded under the eligibility criterion
+  (single populated entropy bin).}
+\label{tab:coverage}
+\begin{tabular}{l ccc}
+\toprule
+\textbf{Model} & \textbf{MMLU-Pro} & \textbf{GPQA-Diam.} & \textbf{HLE} \\
+\midrule
+Claude 4.5 Haiku     & $\checkmark$ & $\checkmark$ & $\dagger$ \\
+Claude 4.6 Sonnet    & $\checkmark$ & $\checkmark$ & $\dagger$ \\
+GPT-5.4              & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+GPT-5.4 Mini         & $\checkmark$ & $\checkmark$ & $\dagger$ \\
+GPT-5.4 Nano         & $\checkmark$ & $\checkmark$ & $\dagger$ \\
+Gemini 3.5 Flash     & $\ast$       & $\ast$       & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\end{table}

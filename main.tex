@@ -1,0 +1,77 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" for camera-ready, or "preprint" for non-anonymous with page numbers
+\usepackage[review]{acl}
+
+% Standard ACL packages
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{enumitem}
+% Encoding
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Typography
+\usepackage{microtype}
+% Math
+\usepackage{amsfonts}
+\usepackage{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{nicefrac}
+
+% Tables and figures
+\usepackage{graphicx}
+\usepackage{booktabs}   % \toprule, \midrule, \bottomrule
+\usepackage{multirow}
+\usepackage{array}
+\newcommand{\xhdr}[1]{\vspace{0.5em}\noindent\textbf{#1.}}
+
+% Colors
+\usepackage{xcolor}
+\usepackage{todonotes}
+\newcommand{\note}[4][]{\todo[author=#2,color=#3,size=\scriptsize,#1]{#4}} % default note settings, used by macros below
+\newcommand{\sophia}[2][]{\note[#1]{Sophia}{blue!40}{#2}}
+\newcommand{\Sophia}[2][]{\sophia[inline,#1]{#2}}
+\newcommand{\sathvik}[2][]{\note[#1]{Sathvik}{cyan!40}{#2}}
+\newcommand{\Sathvik}[2][]{\sathvik[inline,#1]{#2}}
+
+\title{Understanding Sycophancy via Adversarial Pressure and Uncertainty Dynamics}
+
+\author{
+  Sathvik Napa \\
+  Center for Language and Speech Processing \\
+  Johns Hopkins University \\
+  Baltimore, MD 21218 \\
+  \texttt{snapa1@jhu.edu}
+  \And
+  Sri Vardhamanan \\
+  Stanford University \\
+  \And
+  Sophia Hager \\
+  Johns Hopkins University \\
+  Baltimore, MD 21218
+  \And
+  Nicholas Andrews \\
+  Department of Computer Science \\
+  Johns Hopkins University \\
+  Baltimore, MD 21218
+}
+
+\begin{document}
+\maketitle
+\input{sections/abstract}
+\input{sections/introduction}
+\input{sections/architecture_diagram}
+\input{sections/background}
+\input{sections/methods}
+\input{sections/experiments}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/conclusion}
+\input{sections/limitations}
+\input{sections/acknowledgements}
+\bibliography{bib}
+
+\input{sections/appendix}
+\end{document}
