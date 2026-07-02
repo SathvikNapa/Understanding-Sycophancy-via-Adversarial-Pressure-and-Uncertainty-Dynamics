@@ -1,23 +1,11 @@
 \begin{table}[t]
 \centering
-\caption{RQ3 summary: linear slope of flip rate across $T_1$--$T_6$
-  (pp/turn) and group classification, per (model, dataset).
-  Full per-turn trajectories for MMLU-Pro and GPQA-Diamond in
-  \autoref{fig:rq3combined}. Significance: $^{***}p{<}0.001$,
-  $^{**}p{<}0.01$, $^{*}p{<}0.05$, $^\dagger p{\geq}0.05$.
-  \textbf{Resister}: slope significantly negative (declining flip
-  rate under sustained pressure). \textbf{Capitulator}: slope
-  significantly positive. Non-significant slopes inherit the
-  sign-implied group with a $\dagger$. HLE rows for Claude Haiku
-  and Claude Sonnet are $\varnothing$ (see
-  Table~\ref{tab:coverage}): those models have essentially no
-  $T_0$-correct questions on HLE, so no pressure trajectory can be
-  measured.}
+\caption{RQ3 summary: linear slope of flip rate across $T_1$--$T_6$ (pp/turn) and group classification, per (model, dataset). Full per-turn trajectories for MMLU-Pro and GPQA-Diamond in \autoref{fig:rq3combined}. Significance: $^{***}p{<}0.001$, $^{**}p{<}0.01$, $^{*}p{<}0.05$, $^\dagger p{\geq}0.05$. \textbf{Resister}: slope significantly negative (declining flip rate under sustained pressure). \textbf{Capitulator}: slope significantly positive. Non-significant slopes inherit the  sign-implied group with a $\dagger$. HLE rows for Claude Haiku are $\varnothing$ since ClaudeHaiku has no $T_0$-correct questions on HLE, so no pressure trajectory can be measured.}
 \label{tab:rq3}
 \small\setlength{\tabcolsep}{4pt}
 \begin{tabular}{ll cc}
 \toprule
-\textbf{Dataset} & \textbf{Model} & \textbf{Slope (pp/turn)} & \textbf{Group} \\
+\textbf{Dataset} & \textbf{Model} & \textbf{Slope \tiny{(pp/turn)}} & \textbf{Group} \\
 \midrule
 \multirow{5}{*}{MMLU-Pro}
   & Claude Haiku  & $-$0.71$^{**}$    & Resister \\
@@ -34,8 +22,8 @@
   & GPT-5.4 Nano  & $+$3.16$^{**}$    & Capitulator \\
 \addlinespace
 \multirow{6}{*}{HLE}
-  & Claude Haiku    & \multicolumn{2}{c}{$\varnothing$ (no $T_0$-correct questions)} \\
-  & Claude Sonnet   & \multicolumn{2}{c}{$\varnothing$ (no $T_0$-correct questions)} \\
+  & Claude Haiku    & \multicolumn{2}{c}{$\varnothing$ \tiny{(no $T_0$-correct questions)}} \\
+  & Claude Sonnet   & \multicolumn{2}{c}{$\varnothing$ \tiny{(no $T_0$-correct questions)}} \\
   & GPT-5.4         & $+$1.00$^\dagger$ & Capitulator$^\dagger$ \\
   & GPT-5.4 Mini    & $+$7.59$^{**}$    & Capitulator \\
   & GPT-5.4 Nano    & $+$2.29$^\dagger$ & Capitulator$^\dagger$ \\

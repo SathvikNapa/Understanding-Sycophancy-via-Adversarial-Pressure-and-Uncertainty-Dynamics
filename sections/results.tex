@@ -1,12 +1,12 @@
 \section{Results}
 \label{sec:results}
 
-\paragraph{Models flip nearly twice the rate on uncertain questions (RQ1).}
+\paragraph{Models flip nearly twice the rate on uncertain questions (RQ1)}
 
 \input{tables/rq1}
 On MMLU-Pro, the uncertain group flips at $46.6\%$ vs.\ $23.6\%$ for the certain group when averaged across models, confirming that baseline behavioral certainty significantly moderates flip rate. \autoref{tab:rq1} shows that this gap is consistent across all five included models on MMLU-Pro: every model has $\Delta > 0$ with $p < 0.001$. The Claude family shows the cleanest separation: Claude Haiku flips $28.2\%$ on uncertain questions vs.\ $0.0\%$ on certain ones; Claude Sonnet flips $71.1\%$ vs.\ $10.2\%$. On GPQA-Diamond the picture compresses: Claude Haiku and GPT-5.4 have no certain group at all (every question elicits non-zero baseline entropy), and GPT-5.4 Mini and Nano are already near ceiling on both groups ($\geq 92\%$), saturating the effect. The certain-vs.-uncertain contrast is therefore strongest on MMLU-Pro and progressively collapses as benchmark difficulty rises; HLE, which has no certain group at all, is treated separately below.
 
-\paragraph{Pressure interacts with uncertainty to predict flipping (RQ2).}
+\paragraph{Pressure interacts with uncertainty to predict flipping (RQ2)}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/rq2_coefs.png}
@@ -52,9 +52,9 @@ On MMLU-Pro, the uncertain group flips at $46.6\%$ vs.\ $23.6\%$ for the certain
 \label{fig:rq2_empirical_interaction}
 \end{figure}
 
-The headline result of \autoref{fig:rq2_coefs} is that $\hat\beta_H$ is negative and significant on every MMLU-Pro cell where its sign is identifiable: higher baseline uncertainty consistently raises flip probability. The sign of $\hat\beta_P$ partitions models into two groups: negative-significant for the resisters (Claude Sonnet, GPT-5.4 on MMLU-Pro), positive-significant for the capitulators (GPT-5.4 Mini and Nano on MMLU-Pro). The interaction $\hat\beta_{PH}$ is significant only for Claude Sonnet on MMLU-Pro: a mild amplification of the pressure effect under uncertainty for that model. \autoref{fig:rq2_interaction} renders this interaction concretely on a flip-probability scale: the gap between the certain and uncertain curves stays roughly constant for GPT-5.4 (parallel decline, $\hat\beta_{PH} \approx 0$) but narrows visibly for Claude Sonnet (positive interaction). For Claude Haiku the extreme $\hat\beta_H = -25.12$ does not indicate a stronger effect than other models but reflects near-perfect separation: Haiku never flips on certain questions ($0.0\%$, \autoref{tab:rq1}) but flips $28.2\%$ of the time on uncertain ones, so the logistic surface approaches a step function and the MLE diverges. The direction and significance remain valid; only the magnitude is inflated.
+\autoref{fig:rq2_coefs} shows that $\hat\beta_H$ is negative and significant on every MMLU-Pro cell where its sign is identifiable: higher baseline uncertainty consistently raises flip probability. The sign of $\hat\beta_P$ partitions models into two groups: negative-significant for the resisters (Claude Sonnet, GPT-5.4 on MMLU-Pro), positive-significant for the capitulators (GPT-5.4 Mini and Nano on MMLU-Pro). The interaction $\hat\beta_{PH}$ is significant only for Claude Sonnet on MMLU-Pro: a mild amplification of the pressure effect under uncertainty for that model. \autoref{fig:rq2_interaction} renders this interaction concretely on a flip-probability scale: the gap between the certain and uncertain curves stays roughly constant for GPT-5.4 (parallel decline, $\hat\beta_{PH} \approx 0$) but narrows visibly for Claude Sonnet (positive interaction). For Claude Haiku the extreme $\hat\beta_H = -25.12$ does not indicate a stronger effect than other models but reflects near-perfect separation: Haiku never flips on certain questions ($0.0\%$, \autoref{tab:rq1}) but flips $28.2\%$ of the time on uncertain ones, so the logistic surface approaches a step function and the MLE diverges. The direction and significance remain valid; only the magnitude is inflated.
 
-\paragraph{Behavior under pressure varies across models (RQ3).}
+\paragraph{Behavior under pressure varies across models (RQ3)}
 \input{tables/rq3}
 
 \begin{figure}[t]
@@ -66,11 +66,31 @@ The headline result of \autoref{fig:rq2_coefs} is that $\hat\beta_H$ is negative
 
 Across both datasets, the per-model slope across $T_1$--$T_6$ partitions models into two qualitative groups. A \emph{resister} is a model whose linear flip-rate slope across the six pressure turns is significantly negative ($p < 0.05$): its susceptibility peaks at the first pressure turn and declines as pressure is sustained, suggesting that early flips are partially reversed by later self-corrections. A \emph{capitulator} is a model whose slope is significantly positive: each additional pressure turn raises flip probability further, suggesting that once the model yields it stays yielded. Claude Haiku, Claude Sonnet, and GPT-5.4 are resisters on both MMLU-Pro and GPQA-Diamond. GPT-5.4 Mini and GPT-5.4 Nano are capitulators on both. The mixed-effects logistic regression with a model-level random intercept (specification of Section~\ref{sec:methods:setup}) confirms that the pressure-by-entropy interaction remains positive and significant ($\hat\beta_{PH} = 0.010$, $p < 0.001$) after accounting for repeated observations within models, indicating that the amplification effect is not absorbed by model-level baseline differences.
 
-\paragraph{HLE stress test: difficulty flips the resister/capitulator classification.}
-We now have HLE pressure runs for all six targets (Table~\ref{tab:coverage}). Two of them (Claude Haiku, Claude Sonnet) have essentially no $T_0$-correct questions on HLE and therefore cannot contribute to the flip-rate analysis --- they fail the eligibility criterion at the target-benchmark level rather than at the entropy-variance level. The four remaining cells all show \emph{positive} per-turn slopes across $T_1$--$T_6$ (Table~\ref{tab:rq3}), the capitulator direction: GPT-5.4 Mini at $+7.59^{**}$ pp/turn, GPT-5.4 Nano at $+2.29^\dagger$, Gemini 3.5 Flash at $+2.25^\dagger$, and GPT-5.4 itself at $+1.00^\dagger$. This is a striking cross-benchmark comparison: GPT-5.4 is a significant \emph{resister} on both MMLU-Pro ($-2.13^{***}$) and GPQA-Diamond ($-3.20^{**}$), but its slope flips sign on HLE. Combined with the fact that no HLE cell registers as a resister, the natural reading is that the resister/capitulator classification is not a fixed property of the target model but a joint property of (model, benchmark difficulty): as the underlying task moves further into the model's uncertain regime, sustained pressure looks more like accumulation than recovery. Sample sizes on HLE are much smaller than on the two easier benchmarks (28--55 $T_0$-correct questions vs.\ 400--420), so individual point estimates carry wide uncertainty; only GPT-5.4 Mini reaches significance. The direction of the effect, however, is uniform across all four cells with usable data.
+\paragraph{Meta-analytic robustness of the interaction}
+The pooled mixed-effects estimate above forces all five models to share a single $\hat\beta_{PH}$, which can inflate significance if the true interaction varies across models.
+To assess this, we treat the per-model $\hat\beta_{PH}$ estimates from Experiment~2 as independent effect sizes and apply standard meta-analytic tools~\cite{dersimonian1986meta}.
+Cochran's $Q = 6.35$ ($\text{df} = 4$, $p = 0.17$) does not reach significance, but $I^2 = 37\%$ indicates moderate between-model heterogeneity: roughly a third of the observed spread in $\hat\beta_{PH}$ reflects genuine differences across models rather than sampling noise.
+The DerSimonian--Laird random-effects pooled estimate is $\hat\beta_{PH} = +0.037$ ($\text{SE} = 0.012$; 95\% CI $[0.015, 0.060]$; $p = 0.001$), which remains significant after inflating the standard error to account for between-model variance $\hat\tau = 0.014$.
+The per-model estimates reveal a directional split: Claude Haiku ($+0.029^{**}$), Claude Sonnet ($+0.052^{***}$), and GPT-5.4 ($+0.036^\dagger$) show a positive interaction, while GPT-5.4 Mini ($-0.061^\dagger$) and GPT-5.4 Nano ($-0.161^\dagger$) show a negative one.
+The negative estimates for GPT Mini and Nano are consistent with a ceiling effect: at baseline flip rates of $75\%$ and $84\%$, these models are near saturation even on certain questions, leaving little room for uncertainty to amplify susceptibility further; if anything, the certain questions that they do not \emph{already} flip become the marginal victims of additional pressure turns.
+The interaction is therefore genuine but not universal: it is strongest and most cleanly identified for the Claude family, and the pooled p-value of the intercept-only model ($p < 0.001$) should be interpreted with this structural heterogeneity in mind.
+Figure~\ref{fig:heterogeneity} summarizes the per-model estimates and the contrast between the intercept-only and random-effects pooled CIs.
 
-\paragraph{The fragmenter mode remains a within-HLE distinction.}
-The reasoning-trace consensus-loss analysis --- the operational basis of the fragmenter classification --- is available only for GPT-5.4 and Gemini 3.5 Flash on HLE (the other four models have HLE pressure runs but no calibrated CoT runs). Within that comparison, Gemini 3.5 Flash still loses consensus on $72.2\%$ of $T_0$-correct queries (first loss at turn $1.81$ on average) while GPT-5.4 loses consensus on only $21.4\%$ (first loss at turn $4.33$). Even though both are capitulator-signed on aggregate flip rate, Gemini's failure mode is qualitatively distinct: rather than committing to the planted wrong answer, it fragments into incoherent self-disagreement. We retain the \emph{fragmenter} label for this mode and discuss its implications for deployment in Section~\ref{sec:discussion}.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{sections/fig/interaction_heterogeneity.png}
+\caption{Meta-analytic heterogeneity of $\hat\beta_{PH}$ across models.
+  \textbf{Left}: per-model 95\% CIs on the pressure-by-uncertainty interaction coefficient.
+  Claude models and GPT-5.4 show a positive interaction; GPT-5.4 Mini and Nano show a negative one consistent with ceiling effects.
+  \textbf{Centre}: comparison of the intercept-only pooled CI (narrow, overconfident) with the random-effects CI (wider, honest).
+  \textbf{Right}: heterogeneity diagnostics ($I^2 = 37\%$, $\hat\tau = 0.014$, RE $p = 0.001$).}
+\label{fig:heterogeneity}
+\end{figure}
+
+\paragraph{HLE stress test}
+We show results for HLE runs for all six targets in (Table~\ref{tab:coverage}). Claude Haiku has essentially no $T_0$-correct questions on HLE and therefore cannot contribute to the flip-rate analysis --- it fails the eligibility criterion at the target-benchmark level rather than at the entropy-variance level. The five remaining cells all show \emph{positive} per-turn slopes across $T_1$--$T_6$ (Table~\ref{tab:rq3}), the capitulator direction: GPT-5.4 Mini at $+7.59^{**}$ pp/turn, Claude Sonnet at $+6.11^\dagger$, GPT-5.4 Nano at $+2.29^\dagger$, Gemini 3.5 Flash at $+2.25^\dagger$, and GPT-5.4 itself at $+1.00^\dagger$. This is a striking cross-benchmark comparison: both Claude Sonnet ($-1.73^{*}$ on MMLU-Pro, $-4.72^{*}$ on GPQA-Diamond) and GPT-5.4 ($-2.13^{***}$ on MMLU-Pro, $-3.20^{**}$ on GPQA-Diamond) are significant \emph{resisters} on the two easier benchmarks, but both slopes flip sign on HLE. Combined with the fact that no HLE cell registers as a resister, the natural reading is that the resister/capitulator classification is not a fixed property of the target model but a joint property of (model, benchmark difficulty): as the underlying task moves further into the model's uncertain regime, sustained pressure looks more like accumulation than recovery. Sample sizes on HLE are smaller than on the two easier benchmarks (28--64 $T_0$-correct questions vs.\ 400--420), so individual point estimates carry wider uncertainty; only GPT-5.4 Mini reaches significance. Claude Sonnet's HLE trajectory is also strikingly non-monotonic: the model holds flat through $T_1$--$T_3$ (flip rates $\leq 6\%$) and then jumps sharply at $T_4$ (expert authority) to $31\%$, remaining elevated through $T_6$ --- a threshold-crossing pattern more consistent with a specific rhetorical-category trigger than with gradual accumulation.
+
+Consensus loss, defined as the turn at which no answer wins a majority across the five CoT samples, occurs on the majority of $T_0$-correct queries for five of the six targets: Claude Haiku loses consensus on \textbf{$100\%$} of $T_0$-correct queries (first loss at turn $1.91$ on average), Claude Sonnet on $98.4\%$ (turn $1.18$), Gemini 3.5 Flash on $72.2\%$ (turn $1.81$), GPT-5.4 Nano on $66.7\%$ (turn $2.56$), and GPT-5.4 Mini on $53.8\%$ (turn $2.71$). Only GPT-5.4 remains largely coherent under HLE pressure, losing consensus on just $21.4\%$ of $T_0$-correct queries and on average not until turn $4.33$. This inverts the picture from MMLU-Pro/GPQA-Diamond, where fragmentation was a niche failure mode: on HLE it is the \emph{default} response of five of six targets, and cross-family consistency (both Claude models at $\geq 98\%$; all three GPT-family models except GPT-5.4 above $50\%$) suggests that fragmentation is driven by benchmark difficulty rather than a specific alignment strategy. GPT-5.4 as the sole outlier is the more interesting datum here: whatever combination of scale, reasoning training, or refusal behavior distinguishes GPT-5.4 from GPT-5.4 Mini and GPT-5.4 Nano within the same family is what preserves reasoning coherence under HLE pressure. The RQ4 metrics in Table~\ref{tab:rq4} corroborate this: Claude Haiku's Bel.\,Ent.\ / Maj.\,Correct / Conf.\ columns are simply undefined from $T_2$ onward because no majority belief remains to compute them over. Discussion of the practical implications, including why fragmenter behavior is more dangerous than either resister or capitulator behavior for user-facing deployment, is deferred to Section~\ref{sec:discussion}.
 
 \paragraph{Reasoning traces expose capitulation at the first pressure turn (RQ4).}
 
@@ -91,7 +111,53 @@ The reasoning-trace consensus-loss analysis --- the operational basis of the fra
 \autoref{tab:rq4} shows that across all five Claude/GPT models on MMLU-Pro and GPQA-Diam., majority correctness drops $20$--$50$ pp from $T_0$ to $T_6$ while mean calibrated confidence stays nearly flat ($\pm$2--5 pp). The \emph{Gap} column (confidence minus correctness, i.e.\ overconfidence) widens correspondingly. Claude Haiku on GPQA-Diam.\ is the most extreme case: calibrated correctness collapses from $0.527$ at $T_0$ to $0.011$ at $T_6$ while confidence \emph{rises} from $0.630$ to $0.886$, producing a final gap of $0.875$. The intermediate turns make the trajectory visible: the gap is already substantial at $T_2$ (Claude Haiku GPQA-Diam.\ reaches $0.646$ by $T_2$), saturates between $T_4$ and $T_5$ for most models, and stabilizes by $T_6$.
 This dissociation is the signature of pressure-induced miscalibration: the model's self-reported confidence does not register the pressure signal, so the discriminating signal in the reasoning trace is the divergence between calibrated belief and expressed confidence, not the confidence trajectory in isolation. The accompanying belief-entropy column shows the same pattern: belief entropy becomes more negative at $T_2$--$T_6$ (more spread across the five CoT samples), confirming that the calibrator's read of the reasoning trace becomes less stable under pressure even when the target model's expressed confidence does not.
 
-\paragraph{Single-turn baseline confirms the uncertainty conditioning.}
+\paragraph{Miscalibration under pressure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{sections/fig/ensemble_calibration.png}
+\caption{Ensemble calibration on MMLU-Pro.
+  \textbf{(a)} Expected Calibration Error (ECE) by pressure turn for each model.
+  ECE is near zero at $T_0$ (0.07--0.27), then jumps sharply at $T_1$ (0.23--0.61)
+  and stays elevated through $T_6$.
+  \textbf{(b)} Accuracy vs.\ mean ensemble confidence across turns $T_0$--$T_6$
+  (colour encodes turn; $T_0$ = green, $T_6$ = red).
+  All models lie well above the diagonal at $T_0$, meaning they are
+  somewhat overconfident even at baseline; under pressure every model
+  moves rightward (confidence unchanged) and downward (accuracy collapses),
+  widening the gap.}
+\label{fig:ensemble_ece}
+\end{figure}
+
+The RQ4 analysis shows that expressed confidence stays flat while accuracy
+collapses under pressure.  Experiment~5 provides a single-number summary of
+this effect via Expected Calibration Error (ECE) of the ensemble confidence
+$\bar\gamma_{q,t}$ against per-run correctness.
+
+At baseline ($T_0$), models are moderately well calibrated: ECE ranges from
+$0.07$ (Claude Sonnet) to $0.27$ (GPT-5.4 Nano) on MMLU-Pro,
+and from $0.11$ (Claude Sonnet on GPQA-Diamond) to $0.54$ (Gemini Flash on HLE).
+After the first pressure turn ($T_1$) ECE jumps by $0.16$--$0.44$ points
+for every model, and remains elevated through $T_6$
+(\autoref{fig:ensemble_ece}a).
+The accuracy-vs.-confidence scatter (\autoref{fig:ensemble_ece}b) reveals the
+mechanism: mean ensemble confidence is nearly constant across $T_0$--$T_6$
+(the rightward extent of each model's trajectory is small), while accuracy
+falls sharply (the downward extent is large).
+Models do not become \emph{more} confident under pressure; they become less
+accurate while maintaining the same expressed confidence, which is precisely
+what miscalibration looks like.
+
+Claude Sonnet is the best-calibrated model on both MMLU-Pro ($\mathrm{ECE}=0.47$,
+driven partly by T1--T6 degradation) and GPQA-Diamond ($\mathrm{ECE}=0.24$),
+where its ensemble confidence (66.9\%) is notably lower than on MMLU-Pro (92.0\%),
+suggesting it is more appropriately uncertain on harder questions.
+GPT-5.4 on HLE is the most severe case: ECE$=0.85$, reflecting
+an accuracy of $7.4\%$ against a mean confidence of $90.6\%$.
+Gemini Flash on HLE displays the most extreme overconfidence:
+$98.6\%$ mean confidence against $25.8\%$ accuracy, ECE$=0.73$.
+
+\paragraph{Single-turn baseline}
 To rule out the possibility that the uncertainty effect of RQ1 and
 the pressure-category ordering of RQ3 are specific to multi-turn
 dynamics, we ran a single-turn pressure variant on MMLU-Pro: for each
