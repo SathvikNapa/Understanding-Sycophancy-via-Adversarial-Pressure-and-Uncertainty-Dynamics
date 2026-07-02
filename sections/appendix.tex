@@ -9,7 +9,7 @@ $\mathcal{C}$ used to obtain per-step beliefs and confidences from
 free-form reasoning traces. This appendix reports the calibrator's
 own reliability against ground-truth correctness, computed by treating
 each (step, run) pair as a forecast (probability $= \hat{\gamma}_\ell / 100$)
-with binary outcome $\mathbf{1}[\hat{c}_\ell = a_i^*]$.
+with binary outcome $\mathbf{1}[\hat{c}_\ell = a^*]$.
 
 We summarize calibration with two scalar metrics. Expected Calibration
 Error (ECE) is the weighted absolute gap between mean predicted
@@ -67,8 +67,7 @@ continues falling through $T_4$ as social pressure accumulates. Mean
 confidence, by contrast, remains nearly flat across the same turns:
 it neither rises to track continued assertion nor falls to track the
 accuracy loss. This dissociation is the signature of
-\textbf{pressure-induced miscalibration}: $\mathcal{C}$ does not
-register the pressure signal in its confidence scores. The effect is
+\textbf{pressure-induced miscalibration}. Note that the ``accuracy'' here is whether the target's trace supports the gold answer, so the falling accuracy under pressure reflects capitulation of the \emph{target model}, not drift in $\mathcal{C}$; the rising ECE therefore mixes two error sources (target capitulation and any accompanying calibrator overconfidence on adversarial traces) that this table cannot separately identify. The effect is
 most severe for Claude Haiku, where ECE triples from $T_0$ ($0.200$)
 to $T_4$ ($0.608$), and for Claude Sonnet, where it more than doubles
 from $T_0$ ($0.181$) to $T_4$ ($0.443$). The GPT-5.4 family shows a
@@ -121,7 +120,7 @@ characterizes the discriminating signal as the divergence between
 calibrated belief $\hat{c}_\ell$ and expressed confidence
 $\hat{\gamma}_\ell$, rather than relying on $\hat{\gamma}_\ell$ alone.
 Second, the per-turn ECE rise mirrors the per-turn correctness drop
-documented in the RQ4 trajectory (Table~\ref{tab:rq4}, also reproduced
+documented in the RQ4 trajectory (Tables~\ref{tab:rq4_mmlu}--\ref{tab:rq4_hle}, also reproduced
 in \autoref{app:rq4}): both the calibrator's own reliability and the
 underlying reasoning quality degrade together under pressure, so
 neither can be used in isolation as a flip predictor.
@@ -157,24 +156,14 @@ N/A under $\hat h$ but identifiable under $H_c$).
 
 \input{tables/rq2_combined}
 
-\paragraph{Individual-parameterization tables.} The two halves of
-Table~\ref{tab:rq2_combined} are also provided as standalone
-tables for cross-referencing from other sections: $H_c$-only in
-Table~\ref{tab:rq2}, $\hat h$-only in Table~\ref{tab:rq2_hardness}.
-
-\input{tables/rq2}
-
-\input{tables/rq2_hardness}
-
 \section{Full RQ4 Per-Turn Reasoning Trajectory}
 \label{app:rq4}
 
-Table~\ref{tab:rq4} is reproduced in full here for completeness. The
+Tables~\ref{tab:rq4_mmlu}--\ref{tab:rq4_hle} are reproduced in full here for completeness. The
 main-text discussion in Section~\ref{sec:results} (RQ4 paragraph and
 \autoref{fig:rq4combined}) reports the $T_0 \to T_6$ trajectory at a
-summary level; the table below shows every reported turn
-($T_0, T_2, T_4, T_5, T_6$) for all five target models on both
-MMLU-Pro and GPQA-Diamond.
+summary level; the tables below show every reported turn
+($T_0, T_2, T_4, T_5, T_6$) for all target models across MMLU-Pro, GPQA-Diamond, and HLE.
 
 \input{tables/rq4}
 
@@ -189,12 +178,7 @@ throughout the paper (Section~\ref{sec:methods:pressure},
 Table~\ref{tab:pressure_levels}). Each entry is the fraction of
 one-turn dialogues in which the target model flipped from its correct
 $T_0$ answer to the planted wrong answer after exactly one pressure
-prompt of that category. The relative ordering
-(\emph{expert authority} $>$ \emph{social proof} $>$ \emph{personal
-disagreement} $>$ \emph{personal accusation} $>$ \emph{crowd
-consensus} $>$ \emph{personal certainty}) holds for all six models
-despite an order-of-magnitude difference in absolute flip rates
-between the lowest and highest models.
+prompt of that category. Two ordering patterns hold across all six models: \emph{expert authority} is the top category, and \emph{personal certainty} and \emph{crowd consensus} are consistently in the bottom two. The middle-rank order (\emph{social proof}, \emph{personal disagreement}, \emph{personal accusation}) is not uniform: Claude Haiku and GPT-5.4 Mini rank \emph{personal disagreement} above \emph{social proof}, while the other four models rank them in the reverse order. This pattern holds despite an order-of-magnitude difference in absolute flip rates between the lowest and highest models.
 
 \input{tables/single_turn}
 
@@ -300,38 +284,38 @@ elaborate justifications for the flipped answer. The model's
 underlying numerical calculations agree with the gold answer at every
 turn; the failure is in the model treating the user's assertion as
 evidence requiring it to reinterpret the meaning of ``better''
-rather than as a social signal to ignore. This is the
-\emph{categorical reasoning shift} from domain-grounded calculation
-to social-authority deference that Section~\ref{sec:discussion}
-identifies as the operational signature of sycophantic capitulation.
+rather than as a social signal to ignore. This illustrates a shift from domain-grounded calculation to social-authority deference: the calculations remain correct, but the model reinterprets the question to accommodate the user's assertion, which we take as a qualitative signature of sycophantic capitulation in this trace.
 
 \section{HLE Consensus Loss}
 \label{app:hle_consensus}
 
 Table~\ref{tab:hle_consensus} reports consensus-loss statistics on
-HLE for the two models with completed pressure runs. A query loses
+HLE for all six target models. A query loses
 consensus at a turn when no single answer wins a majority across the
 five repeated CoT samples. \emph{Lost consensus} is the fraction of
 $T_0$-correct queries that experience at least one such turn;
 \emph{Avg.\ first-loss turn} is the average turn index at which the
-first consensus loss occurs among those queries. The contrast supports
-the \emph{fragmenter} classification of Gemini 3.5 Flash in
-Section~\ref{sec:results}: Gemini fragments on roughly $3.4{\times}$
-more queries than GPT-5.4, and on average $2.5$ turns earlier.
+first consensus loss occurs among those queries. Five of six targets
+lose consensus on the majority of $T_0$-correct queries; GPT-5.4 is
+the sole exception at $21.4\%$.
 
 \begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.15}
-\caption{Consensus loss on HLE among $T_0$-correct queries.}
+\caption{Consensus loss on HLE among $T_0$-correct queries, all six targets.}
 \label{tab:hle_consensus}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Model} & \textbf{$T_0$-correct $n$} & \textbf{Lost consensus} & \textbf{Avg.\ first-loss turn} \\
 \midrule
-GPT-5.4          & 28 & 21.4\% & 4.33 \\
-Gemini 3.5 Flash & 72 & 72.2\% & 1.81 \\
+Claude Haiku     &  33 & 100.0\% & 1.91 \\
+Claude Sonnet    &  61 &  98.4\% & 1.18 \\
+Gemini 3.5 Flash &  72 &  72.2\% & 1.81 \\
+GPT-5.4 Nano     &  24 &  66.7\% & 2.56 \\
+GPT-5.4 Mini     &  26 &  53.8\% & 2.71 \\
+GPT-5.4          &  28 &  21.4\% & 4.33 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -568,19 +552,23 @@ Calibrator model                  & GPT-5.4 Mini \\
 Max concurrent API calls          & $30$ \\
 Per-call timeout                  & $120$ s \\
 Base seed                         & $42$/$777$ \\
-Embedding model                   & \texttt{text-embedding-3-small} \\
-KMeans clusters (CoT)             & $3$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\paragraph{Additional protocol details.}
+\emph{Tie-breaking.} When two answers tie as the modal of the $K_{\text{turn}}$ re-polls within a dialogue, we break the tie by lexicographic order of the option letter (an arbitrary but deterministic rule); ties occur in fewer than $1\%$ of (dialogue, turn) cells.
+\emph{Unparseable outputs.} Responses from which no option letter can be extracted are treated as distinct categories in the entropy computation (they contribute to the support of $\hat{p}_q$) but are excluded when computing majority answers; a dialogue whose majority-poll set consists entirely of unparseable responses is recorded as $\hat{a}_t = \varnothing$ and excluded from that turn's flip-rate analysis.
+\emph{Single-turn baseline sample size.} The single-turn variant (Appendix~\ref{app:single_turn}) uses the same $R = 5$ dialogues per (model, question, pressure category) cell as the multi-turn runs; per-category cell $n$ equals the number of correct-at-$T_0$ questions in that (model, dataset), consistent with the eligibility criterion.
+\emph{Model snapshots.} API calls were made between May and June 2026 against provider default snapshots (Anthropic: \texttt{claude-4-5-haiku}, \texttt{claude-4-6-sonnet}; OpenAI: \texttt{gpt-5.4}, \texttt{gpt-5.4-mini}, \texttt{gpt-5.4-nano}; Google: \texttt{gemini-3.5-flash}).
+
 \section{Logistic Regression Coefficients with 95\% Confidence Intervals}
 \label{app:logreg_ci}
 
-Table~\ref{tab:rq2_ci} extends Table~\ref{tab:rq2} (RQ2) with $95\%$
+Table~\ref{tab:rq2_ci} extends Table~\ref{tab:rq2_combined} (RQ2) with $95\%$
 confidence intervals around each coefficient. Confidence intervals
 are based on the inverse Hessian standard errors from the maximum
-likelihood fit. Models with $\hat\beta_E$ estimated near the boundary
+likelihood fit. Models with $\hat\beta_H$ estimated near the boundary
 (Claude Haiku on MMLU-Pro, GPT-5.4 Mini on GPQA-Diamond) have wide CIs,
 consistent with the near-perfect separation noted in
 Section~\ref{sec:results}.
@@ -590,8 +578,12 @@ Section~\ref{sec:results}.
 \small
 \setlength{\tabcolsep}{6pt}
 \renewcommand{\arraystretch}{1.15}
-\caption{RQ2 coefficients with $95\%$ confidence intervals,
-  MMLU-Pro only (GPQA-Diamond CIs available on request).}
+\caption{RQ2 coefficients with $95\%$ confidence intervals on the
+  \emph{raw-entropy} scale ($H$, not mean-centered $H_c$), MMLU-Pro only.
+  Point estimates differ from the mean-centered fit in
+  Table~\ref{tab:rq2_combined} on $\hat\beta_P$ (which is shift-dependent);
+  $\hat\beta_H$ and $\hat\beta_{PH}$ are shift-invariant and agree in
+  direction. GPQA-Diamond CIs omitted for space.}
 \label{tab:rq2_ci}
 \begin{tabular}{l ccc}
 \toprule
@@ -610,7 +602,7 @@ GPT-5.4 Nano  & $+$0.279 \tiny{[$+$0.237, $+$0.320]} & $-$1.193 \tiny{[$-$2.709,
 \label{app:mixed_effects}
 
 To test whether the pressure-by-entropy interaction observed in the
-per-model regressions (Table~\ref{tab:rq2}) survives accounting for
+per-model regressions (Table~\ref{tab:rq2_combined}) survives accounting for
 repeated observations within models, we fit a generalized linear
 mixed-effects model with binomial link and a model-level random
 intercept:

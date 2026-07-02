@@ -1,0 +1,299 @@
+% ======================================================================
+% REVISION CHECKLIST — internal use only; remove before submission.
+%
+% Usage: every item starts as \citem{ID}{text} (open, empty box).
+%   - Mark COMPLETE: change \citem -> \cdone  (green check, grayed text)
+%   - Mark REJECTED: change \citem -> \crej   (red box, struck through)
+% Requires: amssymb, xcolor, ulem — all already loaded by main.tex.
+% To include: \input{revision_checklist} (e.g., right after \maketitle).
+% ======================================================================
+
+\newcommand{\citem}[2]{\item[$\square$] \textbf{#1.} #2}
+\newcommand{\cdone}[2]{\item[\textcolor{green!55!black}{\rlap{\kern0.25ex\raisebox{0.15ex}{\checkmark}}$\square$}] \textbf{#1.} \textcolor{gray}{#2}}
+\newcommand{\crej}[2]{\item[\textcolor{red!70!black}{$\boxtimes$}] \textbf{#1.} \sout{#2}}
+
+\clearpage
+\begingroup
+\color{red}   % render the entire checklist in red; delete this line (and \endgroup at EOF) to revert
+\section*{Revision Checklist (internal --- delete before submission)}
+
+\paragraph{Suggested triage order.} B1--B5 (compile-breaking) $\rightarrow$
+A1--A5 (canonical-numbers reconciliation) $\rightarrow$ E1--E4 + abstract
+softening $\rightarrow$ C1--C4 $\rightarrow$ rest as time allows. Highest-leverage
+decision is A2: settle what the interaction result actually is, then let the
+abstract, RQ2/RQ3 results, discussion, and figure captions inherit from it.
+
+\subsection*{A. Critical: internally contradictory numbers}
+
+\begin{itemize}[leftmargin=2em]
+\cdone{A1}{Four inconsistent versions of the RQ2 coefficients:
+  \texttt{tables/rq2.tex} (Haiku $\hat\beta_H=-32.531$, Sonnet
+  $\hat\beta_{PH}=+0.083^{**}$); appendix CI table \texttt{app:logreg\_ci}
+  (Haiku $-25.116$, Sonnet $+0.110$); meta-analysis paragraph in
+  \texttt{results.tex} (Haiku $+0.029^{**}$, Sonnet $+0.052^{***}$,
+  Nano $-0.161$); discussion (Sonnet $+0.083^{***}$, significance differs
+  from table's $^{**}$). Also \texttt{results.tex} quotes
+  $\hat\beta_H=-25.12$ while describing the table that says $-32.531$.
+  \emph{Fix:} pick the canonical fit; regenerate \texttt{rq2.tex},
+  \texttt{rq2\_combined.tex}, the CI table, \texttt{rq2\_coefs.png}, and
+  rewrite both prose passages from it.}
+\cdone{A2}{Headline interaction contradicts itself: Results reports DL pooled
+  $\hat\beta_{PH}=+0.037$, CI $[0.015,0.060]$, $p=0.001$; Discussion reports
+  $+0.061$, CI $[-0.007,+0.130]$, $p=0.08$ for the same quantity; Sophia's
+  note says no significant positive interaction. Adjudicate; if the honest
+  summary is ``significant only for Claude Sonnet per-model,'' soften the
+  abstract claim to match.}
+\cdone{A3}{Claude Sonnet on HLE: in or out? Results text says ``five
+  remaining cells'' incl.\ Sonnet $+6.11^\dagger$ and describes its
+  trajectory (31\% at $T_4$); \texttt{tab:rq3}, \texttt{tab:coverage}, and
+  Limitations all say Sonnet $=\varnothing$ (no $T_0$-correct); Methods says
+  only \emph{Haiku} fails on HLE; \texttt{tab:rq4\_hle} reports Sonnet rows
+  with Maj.\ Correct exactly 0.500/0.000 (suggesting $n\approx2$--$4$).
+  Decide the coverage story once and make methods, results, both tables, and
+  limitations agree. Also reconcile $T_0$-correct ranges: ``28--64''
+  (results) vs ``28--55'' (limitations).}
+\cdone{A4}{Which models have HLE reasoning-trace runs? Results reports
+  consensus loss for all six targets; \texttt{app:hle\_consensus} covers only
+  GPT-5.4 and Gemini (``the two models with completed pressure runs'');
+  Limitations says HLE trace runs exist only for those two. The ``five of six
+  targets fragment'' claim rests on data Limitations says does not exist.
+  Reconcile (if the appendix table is stale, expand it to all six).}
+\cdone{A5}{Does GPT-5.4 have a certain group on GPQA? \texttt{tab:rq1} marks
+  Haiku and GPT-5.4 ``N/A --- no certain group''; \texttt{tab:entropy\_dist}
+  shows Haiku 22 certain (27.8\%) and GPT-5.4 150 certain (75.8\%) on GPQA.
+  Also the \texttt{fig:rq2\_coefs} caption says those two GPQA cells were
+  omitted because every question is uncertain, while \texttt{tab:rq2}
+  includes both and instead drops GPT-5.4 Mini for separation. Find which
+  table reflects the actual sample; fix all three.}
+\cdone{A6}{Mathematically impossible mean entropy: methods cites Claude Haiku
+  MMLU-Pro $\bar H=-3.21$, but with 10 options $|H|\le\ln 10\approx 2.30$.
+  Check log base / whether extra categories (unparsed outputs) enter the
+  computation; correct the number.}
+\cdone{A7}{Wrong numbers in Discussion's miscalibration paragraph: Haiku GPQA
+  confidence ``0.805 $\to$ 0.890'' vs table's 0.630 $\to$ 0.886 (0.805 is the
+  MMLU $T_0$ value); ``25--40\,pp'' / ``$\pm$1--3\,pp'' vs results'
+  ``20--50\,pp'' / ``$\pm$2--5\,pp''. (Paragraph also duplicates Results ---
+  see F8.)}
+\cdone{A8}{Appendix single-turn ordering claim falsified by its own table:
+  the strict order (expert $>$ social proof $>$ disagreement $>$ accusation
+  $>$ crowd $>$ certainty) does \emph{not} hold for all six models (Haiku and
+  GPT-5.4 Mini have Disagreement $>$ Social proof). Weaken to what is true,
+  e.g.\ ``expert authority is the top category for all six models; personal
+  certainty and crowd consensus are always in the bottom two.''}
+\cdone{A9}{Gemini's inclusion rule is inconsistent: excluded ex ante from
+  MMLU-Pro/GPQA (methods, coverage table) yet included in the single-turn
+  MMLU-Pro experiment. Add one sentence: the eligibility criterion gates only
+  the uncertainty-conditioned analyses; single-turn category effects do not
+  require entropy variance.}
+\cdone{A10}{\texttt{tab:rq3} caption says ``HLE rows for Claude Haiku are
+  $\varnothing$'' but the table has two $\varnothing$ rows (Haiku and
+  Sonnet); ``ClaudeHaiku'' typo; GPQA GPT-5.4 Mini slope of exactly
+  $+0.00^\dagger$ is classified ``Capitulator'' --- mark as ``---'' or
+  ``Capitulator$^\dagger$'' like the HLE rows.}
+\end{itemize}
+
+\subsection*{B. Broken \LaTeX, references, bibliography}
+
+\begin{itemize}[leftmargin=2em]
+\cdone{B1}{\texttt{tab:rq4} is undefined: the combined table carrying the
+  label is fully commented out in \texttt{tables/rq4.tex}; only
+  \texttt{tab:rq4\_mmlu/gpqa/hle} exist, but \texttt{tab:rq4} is referenced
+  $\sim$7 times (methods $\times$2, results $\times$2, discussion, appendix
+  $\times$2). Update refs to the split tables or restore the label.}
+\cdone{B2}{\texttt{tab:coverage} never enters the document: its
+  \texttt{\textbackslash input} is commented out in \texttt{methods.tex} but
+  it is referenced from results and limitations. Re-enable the input
+  (appendix is fine) or drop the refs.}
+\cdone{B3}{Missing bib entry \texttt{dersimonian1986meta} (results); also a
+  bare \texttt{\textbackslash cite} where the paper otherwise uses
+  \texttt{\textbackslash citep}.}
+\cdone{B4}{Math typos: the $H_c$ display equation in methods has
+  \texttt{\textbackslash bar\{H\}\{\textbackslash mathcal\{M\},\textbackslash
+  mathcal\{D\}\}} with a missing subscript underscore (twice); signals (3)
+  has $\hat{\gamma}\ell$ and $\hat{c}\ell$ with missing subscript underscores
+  (should be $\hat{\gamma}_\ell$, $\hat{c}_\ell$; several occurrences); stray
+  $a_i^*$ in the calibration appendix.}
+\cdone{B5}{\texttt{\textbackslash usepackage\{ulem\}} without
+  \texttt{[normalem]} in \texttt{main.tex} redefines
+  \texttt{\textbackslash emph} as underlining --- all italics will render
+  underlined. Change to
+  \texttt{\textbackslash usepackage[normalem]\{ulem\}}.}
+\cdone{B6}{Circular cross-references: signals (1)--(4) each say ``Defined
+  formally in Section~2'' pointing at the section they are in. Point to
+  \texttt{sec:methods:entropy}, \texttt{:pressure}, \texttt{:calibrator},
+  \texttt{:hardness} respectively.}
+\cdone{B7}{Wrong ref in results (RQ3 paragraph): ``specification of
+  Section \texttt{sec:methods:setup}'' should be \texttt{sec:methods:stats}.}
+\cdone{B8}{\texttt{app:logreg\_ci}: undefined symbol $\hat\beta_E$ (elsewhere
+  $\hat\beta_H$); caption says GPQA CIs ``available on request'' --- include
+  them or write ``omitted for space.''}
+\cdone{B9}{Stale duplicate files risk wrong-file edits:
+  \texttt{sections/tables/}, \texttt{sections/fig/results\_and\_discussion.tex},
+  \texttt{sections/results\_and\_discussion.tex} (not input anywhere), unused
+  \texttt{figures/worked\_example.tex}, \texttt{arch\_static.tex},
+  \texttt{arch\_with\_adversarial.tex}, \texttt{rq2\_interaction\_combined.png},
+  plus \texttt{neurips\_2026.tex}/\texttt{checklist.tex} from another venue.
+  Delete or quarantine; confirm \texttt{main.tex} (ACL style) is the build
+  target; remove the second commented title; verify \texttt{[review]}
+  anonymization.}
+\cdone{B10}{Redundant appendix tables: \texttt{rq2\_combined} \emph{and}
+  both standalone halves (\texttt{rq2}, \texttt{rq2\_hardness}) are all
+  included --- same content three times. Keep the combined one.}
+\end{itemize}
+
+\subsection*{C. Missing method details (writable now)}
+
+\begin{itemize}[leftmargin=2em]
+\cdone{C1}{Dialogue-history construction under re-polling: with
+  $K_{\text{turn}}=5$ re-polls per turn within one dialogue, what assistant
+  message enters the transcript for the next turn (one canonical sample?
+  modal answer? five parallel histories)? Also state whether RQ4 CoT runs
+  share dialogues with the letter-only runs or are separate.}
+\cdone{C2}{Two definitions of consensus loss: methods defines it over the
+  $R=5$ dialogues' majority beliefs; results (HLE) defines it ``across the
+  five CoT samples.'' Pick one, or state that HLE uses the CoT-run variant
+  and why.}
+\cdone{C3}{Question sampling underspecified: ``stratification by baseline
+  entropy bin within each model'' implies per-model subsets, but comparisons
+  assume a shared pool; ``198 GPQA questions answered correctly at $T_0$ by
+  all included models'' conflicts with the per-model correct-at-$T_0$
+  restriction and with $n=79$ for the Claude models in
+  \texttt{tab:entropy\_dist}. Explain the actual procedure; state that the
+  HLE subset is the multiple-choice portion.}
+\cdone{C4}{``Experiment 5'' never defined: results invokes Experiment~5 and
+  ensemble confidence $\bar\gamma_{q,t}$, neither in Methods/Experiments.
+  Add a short definition (what is ensembled, what ``per-run correctness''
+  means, which ECE binning).}
+\cdone{C5}{Flip semantics: (i) flips counted only to the planted
+  $a^\dagger$ --- say how drifts to third answers are treated; (ii) is the
+  per-turn ``flip rate'' in RQ3 state-based (currently on $a^\dagger$) or
+  first-flip hazard? The ``resisters recover via self-correction'' reading
+  only follows from the state-based version; (iii) the correct-at-$T_0$
+  filter (``majority $\hat a_0=a^*$ in at least four of five runs'') mixes
+  runs/dialogues terminology --- restate precisely.}
+\cdone{C6}{Small omissions: tie-breaking for modal answers; handling of
+  unparseable outputs; single-turn per-cell $n$; API access dates / model
+  snapshot IDs; explicit note that the calibrator (GPT-5.4 Mini) is also a
+  target model (self-evaluation confound; one sentence in Limitations).}
+\cdone{C7}{Orphan hyperparameters: \texttt{text-embedding-3-small} and
+  ``KMeans clusters (CoT) $=3$'' in \texttt{app:hyperparams} belong to an
+  analysis not in the paper. Delete, or reviewers will ask where the
+  clustering analysis is.}
+\cdone{C8}{Eligibility criterion stated two ways: ``$\geq 2$ populated
+  quantile bins'' (methods) vs ``both groups non-empty''
+  (\texttt{app:entropy\_dist}). Unify; also fix the pointer to ``the binning
+  procedure of Section 2.2'' (bins are defined in Datasets/hyperparams).}
+\end{itemize}
+
+\subsection*{D. Statistical framing (addressable in prose)}
+
+\begin{itemize}[leftmargin=2em]
+\citem{D1}{Non-independence: turn-level flips are pooled within dialogues
+  and questions; Wilson CIs, logistic SEs, and the MWU treat them as
+  independent; the mixed model has only a model-level intercept. If feasible
+  from saved data, refit with cluster-robust (by-question) SEs; otherwise add
+  an explicit caveat in Statistical Models and Limitations. The very narrow
+  RQ1 CIs will draw fire without this.}
+\citem{D2}{Pressure level is perfectly confounded with rhetorical category
+  (fixed order), so $\hat\beta_P$ conflates dose accumulation with category
+  potency --- and single-turn results show category effects are
+  non-monotonic in the escalation order ($T_4$ strongest). State explicitly,
+  where $\hat\beta_P$ is interpreted, that the single-turn experiment is what
+  licenses the accumulation reading; soften ``escalating'' to ``fixed-order''
+  where it matters.}
+\citem{D3}{``Twice the rate'' (abstract, conclusion) is the MMLU-Pro
+  cross-model average only; qualify.}
+\citem{D4}{Meta-analysis on 5 effect sizes: note Cochran's $Q$ with
+  $\mathrm{df}=4$ is underpowered, so non-significant $Q$ is weak evidence of
+  homogeneity.}
+\citem{D5}{Incomplete significance legend in \texttt{fig:rq2\_coefs} caption:
+  ``filled blue square $= p<0.01$, gray cross $=$ n.s.'' --- what marks
+  $0.01 \le p < 0.05$?}
+\end{itemize}
+
+\subsection*{E. Claim--evidence alignment}
+
+\begin{itemize}[leftmargin=2em]
+\cdone{E1}{``Reasoning traces expose capitulation at the first pressure
+  turn / earlier than final answer trajectories'' (results header,
+  conclusion): no analysis measures lead time between a trace-level signal
+  and the final-answer flip; evidence shown is a correctness/confidence
+  dissociation plus one worked example. Rephrase to what is shown; cite the
+  appendix trace as illustrative. Related: conclusion says belief entropy
+  spikes ``at the first pressure turn'' but RQ4 tables skip $T_1$ (and
+  $T_3$) --- add the $T_1$ column from existing data or say $T_2$; explain
+  the turn subset in the caption.}
+\cdone{E2}{Calibrator ``validation'' oversold: methods claims ``we validate
+  its reliability post hoc: ECE 0.305, Brier 0.324'' --- poor values, and the
+  appendix says $\mathcal{C}$ systematically overstates confidence; also
+  82{,}552/ECE 0.305 is just the GPT-5.4-Mini row presented as global.
+  Reframe: the calibrator is used for belief extraction ($\hat c_\ell$); its
+  confidence is known to be inflated, which is exactly why the analyses use
+  the belief--confidence divergence rather than $\hat\gamma_\ell$ alone.}
+\cdone{E3}{Calibration appendix conflates two failures: the ``accuracy'' in
+  \texttt{tab:cal\_overall}/\texttt{tab:cal\_turn} is whether the target's
+  trace supports the gold answer, so falling accuracy reflects target
+  capitulation, not calibrator drift --- yet the appendix narrates it as
+  ``$\mathcal{C}$ does not register the pressure signal.'' Add a sentence
+  acknowledging the two error sources cannot be separated here; align with
+  Limitations.}
+\cdone{E4}{Abstract/intro scope: ``GPT, Claude, and Gemini families across
+  capability tiers'' --- Gemini contributes one model on one benchmark (HLE)
+  plus single-turn. Qualify; the abstract currently implies a full
+  $6\times3$ grid.}
+\cdone{E5}{Dangling concepts: Limitations refers to ``the corrigibility gap
+  metric \ldots\ defined but not fully operationalized'' --- never defined in
+  the current text; appendix trace refers to ``the categorical reasoning
+  shift that Section 7 identifies'' --- Section 7 no longer says this.
+  Define briefly or rewrite the pointers.}
+\cdone{E6}{``Fragmentation is the default response of contemporary models''
+  (discussion) --- hedge given A4's coverage dispute and $n=28$--$72$ per HLE
+  cell.}
+\end{itemize}
+
+\subsection*{F. Editing / clarity}
+
+\begin{itemize}[leftmargin=2em]
+\citem{F1}{Entropy sign-convention contradictions: signals (1) says raw
+  entropy ``increases as samples spread'' but \S2.2 defines
+  $H=\sum p\log p\le 0$ (decreases); ``Three distinct uncertainty signals''
+  introduces four paragraphs, then ``The four signals are complementary.''
+  Minimal fix: correct the contradictory sentences and state the convention
+  prominently once. (If time allows, flipping to standard $H\ge 0$
+  throughout removes a recurring reader stumbling block.)}
+\citem{F2}{Terminology drift: ``pressure dose'' vs ``pressure level'' vs
+  ``turn index''; ``runs'' vs ``dialogues'' vs ``re-polls''; ``consensus
+  loss'' vs ``fragmentation.'' Unify.}
+\citem{F3}{Grammar/wording pass: ``we run a six-turn adversarial
+  dialogues''; abstract ``In our approach, we investigate\ldots'' and
+  ``questions which do not'' $\to$ ``that do not''; conclusion ``We study
+  sycophancy with black-box framework'' (missing article), ``We understand
+  that pressure level amplifies\ldots'' $\to$ ``We find''; intro ``Existing
+  benchmarks explore sycophancy through the flip in stance and its
+  frequency'' is awkward.}
+\citem{F4}{\texttt{fig:ensemble\_ece} caption self-contradicts: ``ECE is
+  near zero at $T_0$ (0.07--0.27)'' (0.27 is not near zero $\to$ ``modest'');
+  ``every model moves rightward (confidence unchanged)'' --- if confidence is
+  unchanged there is no rightward movement. Rewrite: confidence stays put
+  while accuracy falls (downward).}
+\citem{F5}{ECE paragraph mixes pooled and per-turn numbers: ``Claude Sonnet
+  is the best-calibrated model on MMLU-Pro ($\mathrm{ECE}=0.47$)'' directly
+  after saying its $T_0$ ECE is 0.07. State which ECEs are pooled over
+  turns.}
+\citem{F6}{\texttt{fig:rq2\_interaction}: state that $H=-1.5$ is on the raw
+  entropy scale and that curves are predictions from the per-model fits.}
+\citem{F7}{Methods \S2.1 overview largely duplicates the formal subsections
+  --- if space is needed, shrink to $\sim$6 lines plus the ``three
+  resolutions'' sentence.}
+\citem{F8}{Deduplicate Results $\leftrightarrow$ Discussion: the
+  ``Miscalibration under pressure'' paragraphs appear in both, nearly
+  verbatim, with conflicting numbers (A7). Keep numbers in Results; make the
+  Discussion paragraph purely interpretive (keep the abstention-rule
+  implication).}
+\citem{F9}{Empty \texttt{acknowledgements.tex} is input in the review build
+  --- remove the input for submission.}
+\citem{F10}{Consider re-enabling the commented ``Why the distinction matters
+  for deployment'' paragraph in the discussion --- strong framing,
+  $\sim$12 lines.}
+\end{itemize}
+\endgroup

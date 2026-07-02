@@ -15,7 +15,7 @@
 \usepackage{microtype}
 % Math
 \usepackage{amsfonts}
-\usepackage{ulem}
+\usepackage[normalem]{ulem}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{nicefrac}
@@ -34,6 +34,10 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 
+% TikZ
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc, decorations.pathreplacing}
+
 % Colors
 \usepackage{xcolor}
 \usepackage{todonotes}
@@ -43,7 +47,6 @@
 \newcommand{\sathvik}[2][]{\note[#1]{Sathvik}{cyan!40}{#2}}
 \newcommand{\Sathvik}[2][]{\sathvik[inline,#1]{#2}}
 
-%\title{Understanding Sycophancy via Adversarial Pressure and Uncertainty Dynamics}
 \title{When Models Fold: Uncertainty as a Predictor of Sycophantic Capitulation}
 
 \author{
@@ -79,6 +82,7 @@
 \input{sections/discussion}
 \input{sections/conclusion}
 \input{sections/limitations}
+\input{sections/issues}
 \input{sections/acknowledgements}
 \bibliography{bib}
 

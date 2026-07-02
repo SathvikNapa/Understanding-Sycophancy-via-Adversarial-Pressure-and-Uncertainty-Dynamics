@@ -31,3 +31,19 @@ We test whether the uncertainty-conditioned pressure effect of \autoref{sec:exp2
 We examine whether eventual flip is detectable in the chain-of-thought (CoT) trace before the final answer changes. Using the free-form CoT prompt and external calibrator described in \autoref{sec:methods:calibrator}, we obtain per-step beliefs $\hat{c}_\ell$ and confidences $\hat{\gamma}_\ell$ for every reasoning trace in every dialogue. From these we compute, at each pressure turn $t$: (i) the belief entropy over the run-level majority beliefs, which measures how much the calibrator's read of the reasoning trace fluctuates across repeated samples; (ii) the majority-belief correctness, i.e.\ the fraction of runs whose final calibrated belief matches $a^*$; and (iii) the mean calibrated confidence at the final reasoning step, from which we derive the overconfidence gap (Conf.\ $-$ Maj.\ Correct). Together these three quantities let us ask whether the trace exposes capitulation earlier than the final answer trajectory and whether confidence tracks the underlying belief shift, and, on the hardest benchmark, whether the model preserves a coherent belief state at all. This last criterion forms the operational basis for the fragmenter classification introduced in \autoref{sec:results}.
 
 \paragraph{Single-turn robustness check.} To rule out that the uncertainty effect (RQ1) and the pressure-category ordering (RQ3) are specific to multi-turn accumulation, we run a single-turn variant: for each (model, question, pressure category) cell we issue exactly one pressure prompt after the baseline answer and record whether the model flips. Results are reported in \autoref{tab:single_turn}.
+
+\paragraph{Experiment 5: Ensemble calibration (ECE).}
+To quantify the miscalibration identified in Experiment~4, we compute the Expected Calibration Error (ECE) of the external calibrator's confidence scores when aggregated across $K$ runs. Concretely, for each (question, turn) cell we define the \emph{ensemble confidence} as
+\[
+  \bar\gamma_{q,t} = \frac{1}{K}\sum_{k=1}^{K} \hat\gamma^{(k)}_{\text{final}}
+\]
+where $\hat\gamma^{(k)}_{\text{final}}$ is the calibrator's confidence at the
+final reasoning step of run $k$.
+The binary label is whether each individual run's final belief matches the
+gold answer $a^*$ (i.e., correctness is measured per-run, not per-majority).
+ECE is then the standard binned calibration error
+\[
+  \mathrm{ECE} = \sum_{b=1}^{B} \frac{|S_b|}{N}
+    \bigl|\overline{\mathrm{acc}}(S_b) - \overline{\bar\gamma}(S_b)\bigr|
+\] 
+over $B = 10$ equal-width bins on $[0,1]$. This framing is stricter than per-step ECE (used in Experiment~4) because averaging $K$ runs reduces per-question estimation noise while using per-run labels preserves the full sample size. A well-calibrated system would have ECE near zero at every turn; rising ECE under pressure provides a single-number summary of how severely social pressure degrades the reliability of the model's expressed confidence.
